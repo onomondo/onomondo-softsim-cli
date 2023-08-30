@@ -3,9 +3,7 @@ name: Release
 permissions:
   contents: write
 
-on:
-  release:
-    types: [created]
+on: release
 
 jobs:
   upload-assets:
