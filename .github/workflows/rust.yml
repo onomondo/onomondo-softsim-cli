@@ -25,7 +25,6 @@ jobs:
             ~/.cache/          
           key: ${{ runner.os }}-sccache-${{ hashFiles('**/Cargo.lock') }}
       - uses: chetan/git-restore-mtime-action@v1
-        if: ${{ inputs.restore_mtime }}
       - run: cargo test --locked --no-run
       - run: cargo test --locked --no-fail-fast
       - run: cargo clippy --locked --workspace --tests --no-deps -- -D warnings
