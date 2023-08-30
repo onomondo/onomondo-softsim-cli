@@ -33,7 +33,7 @@ pub async fn get(config: &Config, count: u32) -> Result<Vec<EncryptedProfile>, B
 
         log::debug!("Fetching {} profiles", count);
 
-        let resp = get_profiles_helper(&api, count, &config).await;
+        let resp = get_profiles_helper(&api, count, config).await;
 
         let resp = match resp {
             Ok(r) => r,
@@ -61,7 +61,7 @@ async fn get_profiles_helper(
     count: u32,
     config: &Config,
 ) -> Result<Vec<EncryptedProfile>, Box<dyn Error>> {
-    let body = RequestBody { count: count };
+    let body = RequestBody { count };
     let mut headers = HeaderMap::new();
     headers.insert(AUTHORIZATION, config.api_key.parse().unwrap());
     headers.insert(CONTENT_TYPE, "application/json".parse().unwrap());
