@@ -2,3 +2,5 @@
 /test-server
 .vscode
 
+# default export dir for tests
+/profiles  
