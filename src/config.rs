@@ -27,17 +27,7 @@ pub enum SubCommand {
         #[arg(short, long, default_value = "https://api.onomondo.com/sims/profile")]
         endpoint: String,
     },
-    /// Decrypt and decode profiles
-    Decrypt {
-        /// Path to private key
-        #[arg(short, long)]
-        key: PathBuf,
-        #[arg(short, long = "profiles")]
-        set_of_profiles: Option<PathBuf>,
-        /// decode single profile
-        #[arg()]
-        profile: Option<String>,
-    },
+    /// Find next available profile. Decrypt and decode the profile and mark it as used.
     Next {
         /// Path to private key
         #[arg(short, long)]
