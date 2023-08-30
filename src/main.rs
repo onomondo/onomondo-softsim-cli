@@ -5,11 +5,11 @@ use log::LevelFilter;
 use models::fs;
 use models::profile;
 use models::ss_error;
-use serde_json;
+
 use std::error::Error;
 use std::io::Write;
 use std::path::PathBuf;
-use tokio;
+
 mod config;
 mod models;
 
@@ -17,13 +17,11 @@ mod models;
 async fn main() -> Result<(), Box<dyn Error>> {
     let arg = config::Args::parse();
     let verbosity = arg.verbosity;
-    let log_level: LevelFilter;
-
-    match verbosity {
-        1 | 2 => log_level = LevelFilter::Debug,
-        3 => log_level = LevelFilter::Trace,
-        _ => log_level = LevelFilter::Info,
-    }
+    let log_level: LevelFilter = match verbosity {
+        1 | 2 => LevelFilter::Debug,
+        3 => LevelFilter::Trace,
+        _ => LevelFilter::Info,
+    };
 
     Builder::new()
         .format(|buf, record| {
@@ -85,7 +83,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
 fn get_next(base_path: &PathBuf) -> Result<std::fs::DirEntry, Box<dyn Error>> {
     // find next unused profile.
-    let next = std::fs::read_dir(base_path).unwrap().into_iter().find(|p| {
+    let next = std::fs::read_dir(base_path).unwrap().find(|p| {
         if let Ok(entry) = p {
             let path = entry.path();
             let current_path = path
@@ -103,18 +101,16 @@ fn get_next(base_path: &PathBuf) -> Result<std::fs::DirEntry, Box<dyn Error>> {
     match next {
         None => {
             log::error!("No profiles found at {}", base_path.display());
-            return Err(Box::new(ss_error::GenericError::new(
+            Err(Box::new(ss_error::GenericError::new(
                 "No profiles was found".to_string(),
-            )));
+            )))
         }
-        Some(val) => {
-            return Ok(val?);
-        }
+        Some(val) => Ok(val?),
     }
 }
 
 fn mark_exported(path: &std::fs::DirEntry) -> Result<(), Box<dyn Error>> {
-    let mut to = path.path().clone();
+    let mut to = path.path();
     let mut filename = path.file_name().into_string().unwrap();
     filename.insert_str(0, "__");
 
@@ -189,8 +185,8 @@ async fn fetch_profiles(
 
         drop(file);
 
-        p.into_iter().for_each(|profile| -> () {
-            fs::store(&profile, &store_at, &profile.iccid(), "json").unwrap();
+        p.into_iter().for_each(|profile| {
+            fs::store(&profile, store_at, profile.iccid(), "json").unwrap();
         });
 
         log::info!("Stored profiles in: {}", store_at.display());
@@ -206,9 +202,9 @@ fn next(
     base_path: &PathBuf,
     format: config::Format,
 ) -> Result<(), Box<dyn Error>> {
-    let key = models::profile::crypto::Key::new(&key_path)?;
+    let key = models::profile::crypto::Key::new(key_path)?;
 
-    let profile_path = get_next(&base_path)?;
+    let profile_path = get_next(base_path)?;
     let profile = read_and_decrypt(&profile_path.path(), &key)?;
     mark_exported(&profile_path)?;
 

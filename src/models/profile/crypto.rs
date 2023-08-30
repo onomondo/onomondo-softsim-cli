@@ -44,7 +44,7 @@ mod tests {
     fn import_key() {
         let mut sample_key = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         sample_key.push("resources/test/key");
-        let key = Key::new(&PathBuf::from(sample_key)).unwrap();
+        let key = Key::new(&sample_key).unwrap();
 
         let mut sample_profile = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         sample_profile.push("resources/test/response.json");
