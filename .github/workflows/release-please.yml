@@ -1,14 +1,13 @@
 ---
 on:
   push:
-    # branches: [master]
+    branches: [master]
 
 permissions:
   contents: write
   pull-requests: write
 
 name: Run release-please
-
 
 jobs:
   release-please:
