@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/onomondo/SoftSIM-CLI/compare/v0.2.0...v0.2.1) (2023-08-30)
+
+
+### Bug Fixes
+
+* **nothing:** hello ([3944908](https://github.com/onomondo/SoftSIM-CLI/commit/39449080c859c6e7e8c0121c0ddc89f820429da0))
+
 ## [0.2.0](https://github.com/onomondo/SoftSIM-CLI/compare/v0.1.0...v0.2.0) (2023-08-30)
 
 
