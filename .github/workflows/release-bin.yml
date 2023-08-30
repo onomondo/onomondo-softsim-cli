@@ -5,8 +5,8 @@ permissions:
 
 on:
   push:
-    # tags:
-    #   - v[0-9]+.*
+    tags:
+      - v[0-9]+.*
 
 jobs:
   create-release:
