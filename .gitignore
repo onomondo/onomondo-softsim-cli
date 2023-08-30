@@ -4,3 +4,6 @@
 
 # default export dir for tests
 /profiles  
+
+# macos artifacts..
+.DS_Store
