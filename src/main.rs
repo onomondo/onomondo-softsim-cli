@@ -62,7 +62,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
             set_of_profiles: base_path,
             format,
         } => next(&private_key, &base_path.unwrap(), format),
-        _ => Ok(()),
     };
 
     // println!("Handling RES: {:?}", res);
@@ -194,7 +193,7 @@ async fn fetch_profiles(
             fs::store(&profile, &store_at, &profile.iccid(), "json").unwrap();
         });
 
-        log::info!("Stored profiles at {}", store_at.display());
+        log::info!("Stored profiles in: {}", store_at.display());
     } else if let Err(e) = profiles {
         log::error!("Failed to fetch profiles: {}", e);
     }
