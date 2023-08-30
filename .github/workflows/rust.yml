@@ -1,6 +1,6 @@
-on: [push, pull_request]
+on: [push]
 
-name: Build and Test
+name: Ci
 
 jobs:
   build:
@@ -28,70 +28,3 @@ jobs:
       - run: cargo test --locked --no-run
       - run: cargo test --locked --no-fail-fast
       - run: cargo clippy --locked --workspace --tests --no-deps -- -D warnings
-
-
-
-  # check:
-  #   name: Check
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout sources
-  #       uses: actions/checkout@v2
-
-  #     - name: Install stable toolchain
-  #       uses: actions-rs/toolchain@v1
-  #       with:
-  #         profile: minimal
-  #         toolchain: stable
-  #         override: true
-
-  #     - name: Run cargo check
-  #       uses: actions-rs/cargo@v1
-  #       with:
-  #         command: check
-
-  # test:
-  #   name: Test Suite
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout sources
-  #       uses: actions/checkout@v2
-
-  #     - name: Install stable toolchain
-  #       uses: actions-rs/toolchain@v1
-  #       with:
-  #         profile: minimal
-  #         toolchain: stable
-  #         override: true
-
-  #     - name: Run cargo test
-  #       uses: actions-rs/cargo@v1
-  #       with:
-  #         command: test
-
-  # lints:
-  #   name: Lints
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout sources
-  #       uses: actions/checkout@v2
-
-  #     - name: Install stable toolchain
-  #       uses: actions-rs/toolchain@v1
-  #       with:
-  #         profile: minimal
-  #         toolchain: stable
-  #         override: true
-  #         components: rustfmt, clippy
-
-  #     - name: Run cargo fmt
-  #       uses: actions-rs/cargo@v1
-  #       with:
-  #         command: fmt
-  #         args: --all -- --check
-
-  #     - name: Run cargo clippy
-  #       uses: actions-rs/cargo@v1
-  #       with:
-  #         command: clippy
-  #         args: -- -D warnings
