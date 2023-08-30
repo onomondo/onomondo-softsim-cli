@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/onomondo/SoftSIM-CLI/compare/v0.1.0...v0.2.0) (2023-08-30)
+
+
+### Features
+
+* add bin target ([db8a29f](https://github.com/onomondo/SoftSIM-CLI/commit/db8a29fc73fba866b6f6c88b14a35e964c9a8c13))
+
 ## 0.1.0 (2023-08-30)
 
 
