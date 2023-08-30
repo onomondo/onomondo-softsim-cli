@@ -14,13 +14,13 @@ pub struct Config {
     pub endpoint: String,
 }
 
-const MAX_COUNT: u32 = 500;
+const MAX_COUNT: u32 = 1000;
 
 pub async fn get(config: &Config, count: u32) -> Result<Vec<EncryptedProfile>, Box<dyn Error>> {
     let api = Client::new();
 
     let calls = (count as f32 / MAX_COUNT as f32).ceil() as u32;
-    let count_last_call = count % MAX_COUNT;
+    let count_last_call = count - (calls - 1) * MAX_COUNT;
 
     let mut profiles: Vec<EncryptedProfile> = Vec::new();
 
