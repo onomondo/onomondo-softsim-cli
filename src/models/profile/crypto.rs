@@ -130,6 +130,6 @@ Kthw+VViUazIaTshRIqgZeL4x20slSuESZuTFllZCoA=
         });
 
         println!("Results: {:?}", results);
-        assert!(results.iter().find(|p| p.is_ok()).is_some())
+        assert!(results.iter().any(|p| p.is_ok()))
     }
 }
