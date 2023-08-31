@@ -1,4 +1,5 @@
 use super::Profile;
+use serde::Serialize;
 
 #[allow(dead_code)]
 enum Tags {
@@ -10,6 +11,67 @@ enum Tags {
     Kid = 6,
     Msisdn = 7,
     End = 0xff,
+}
+#[derive(Serialize)]
+struct AdditionFields {
+    name: String,
+    file: String,
+    content: String,
+}
+#[derive(Serialize)]
+struct ExtendedProfile {
+    profile: Profile,
+    additional_fields: Vec<AdditionFields>,
+}
+
+pub fn profile_to_json(p: &Profile) -> Result<String, Box<dyn std::error::Error>> {
+    let mut profile = ExtendedProfile {
+        profile: p.clone(),
+        additional_fields: Vec::new(),
+    };
+
+    if let Some(i) = &p.imsi {
+        let imsi = AdditionFields {
+            name: String::from("encoded imsi"),
+            file: String::from("/3f00/7ff0/6f07"),
+            content: encode_imsi(i),
+        };
+
+        profile.additional_fields.push(imsi);
+    };
+
+    if let Some(i) = &p.iccid {
+        let iccid = AdditionFields {
+            name: String::from("encoded iccid"),
+            file: String::from("/3f00/2fe2"),
+            content: swap_nibbles(i),
+        };
+
+        profile.additional_fields.push(iccid);
+    };
+
+    if let (Some(o), Some(k)) = (&p.opc, &p.k) {
+        let a001 = AdditionFields {
+            name: String::from("Key material for attaching to network"),
+            file: String::from("/3f00/a001"),
+            content: format!("{}{}00", k, o),
+        };
+
+        profile.additional_fields.push(a001);
+    };
+
+    if let (Some(kid), Some(kic)) = (&p.kid, &p.kic) {
+        let a004 = AdditionFields {
+            name: String::from("Key material for OTA related functions"),
+            file: String::from("/3f00/a004"),
+            content: format!("b00011060303{}{}{}", kic, kid, rpad("", 2 * 76, None)),
+        };
+
+        profile.additional_fields.push(a004);
+    };
+
+    let t = serde_json::to_string(&profile)?;
+    Ok(t)
 }
 
 pub fn profile_to_hex(p: &Profile) -> String {
