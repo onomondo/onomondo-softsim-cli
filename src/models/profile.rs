@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 pub mod api;
 pub mod crypto;
-
+pub mod encoder;
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Profile {
     pub iccid: Option<String>,
