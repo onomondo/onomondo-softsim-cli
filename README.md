@@ -21,7 +21,6 @@ This solustion doesn't scale well above millions of profiles, but good enough fo
 ```
 npm install --save-dev @commitlint/{cli,config-conventional}
 npx husky install
-npx husky add .husky/commit-msg  'npx --no -- commitlint --edit ${1}'
 ```
 
 
