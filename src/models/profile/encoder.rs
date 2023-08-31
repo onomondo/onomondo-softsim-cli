@@ -103,39 +103,25 @@ mod tests {
     #[test]
     fn rpad_default() {
         assert_eq!(rpad(&String::from("abc"), 5, None), "abcff");
-
         assert_eq!(rpad(&String::from("abc"), 5, Some(b'e')), "abcee");
     }
 
     #[test]
     fn test_swap_nibbles() {
-        assert_eq!(swap_nibbles(&String::from("1234")), "2143");
-        assert_eq!(swap_nibbles(&String::from("1")), "1");
-        assert_eq!(
-            swap_nibbles(&String::from("1234567890abcdef")),
-            "2143658709badcfe"
-        );
+        assert_eq!(swap_nibbles("1234"), "2143");
+        assert_eq!(swap_nibbles("1"), "1");
+        assert_eq!(swap_nibbles("1234567890abcdef"), "2143658709badcfe");
     }
 
     #[test]
     fn test_imsi_encoder() {
-        assert_eq!(
-            encode_imsi(&String::from("234602102350049")),
-            "082943061220530094"
-        );
-
-        assert_eq!(
-            encode_imsi(&String::from("234602102349958")),
-            "082943061220439985"
-        );
+        assert_eq!(encode_imsi("234602102350049"), "082943061220530094");
+        assert_eq!(encode_imsi("234602102349958"), "082943061220439985");
     }
 
     #[test]
     fn test_encode_iccid() {
-        assert_eq!(
-            swap_nibbles(&String::from("89457300000013500452")),
-            "98543700000031054025"
-        )
+        assert_eq!(swap_nibbles("89457300000013500452"), "98543700000031054025")
     }
 
     #[test]
@@ -158,7 +144,6 @@ mod tests {
             "98001032547698103214",
             swap_nibbles(p.iccid.as_deref().unwrap())
         );
-
         assert_eq!(profile_to_hex(&p), "01120809101010325406360214980010325476981032140320000000000000000000000000000000000420000102030405060708090A0B0C0D0E0F0520000102030405060708090A0B0C0D0E0F0620000102030405060708090A0B0C0D0E0F")
     }
 }
