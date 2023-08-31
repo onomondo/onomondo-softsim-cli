@@ -16,6 +16,15 @@ Benchmark 1: ./target/release/ss_cli next --key resources/test/key
 
 This solustion doesn't scale well above millions of profiles, but good enough for the standard prodction line. 
 
+
+## Installing commitlint + commit hook
+```
+npm install --save-dev @commitlint/{cli,config-conventional}
+npx husky install
+npx husky add .husky/commit-msg  'npx --no -- commitlint --edit ${1}'
+```
+
+
 ## Usage
 ```
 Usage: ss_cli [OPTIONS] <COMMAND>
