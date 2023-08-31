@@ -13,7 +13,7 @@ enum Tags {
     End = 0xff,
 }
 #[derive(Serialize)]
-struct AdditionFields {
+struct AdditionField {
     name: String,
     file: String,
     content: String,
@@ -21,7 +21,7 @@ struct AdditionFields {
 #[derive(Serialize)]
 struct ExtendedProfile {
     profile: Profile,
-    additional_fields: Vec<AdditionFields>,
+    additional_fields: Vec<AdditionField>,
 }
 
 pub fn profile_to_json(p: &Profile) -> Result<String, Box<dyn std::error::Error>> {
@@ -31,7 +31,7 @@ pub fn profile_to_json(p: &Profile) -> Result<String, Box<dyn std::error::Error>
     };
 
     if let Some(i) = &p.imsi {
-        let imsi = AdditionFields {
+        let imsi = AdditionField {
             name: String::from("encoded imsi"),
             file: String::from("/3f00/7ff0/6f07"),
             content: encode_imsi(i),
@@ -41,7 +41,7 @@ pub fn profile_to_json(p: &Profile) -> Result<String, Box<dyn std::error::Error>
     };
 
     if let Some(i) = &p.iccid {
-        let iccid = AdditionFields {
+        let iccid = AdditionField {
             name: String::from("encoded iccid"),
             file: String::from("/3f00/2fe2"),
             content: swap_nibbles(i),
@@ -51,7 +51,7 @@ pub fn profile_to_json(p: &Profile) -> Result<String, Box<dyn std::error::Error>
     };
 
     if let (Some(o), Some(k)) = (&p.opc, &p.k) {
-        let a001 = AdditionFields {
+        let a001 = AdditionField {
             name: String::from("Key material for attaching to network"),
             file: String::from("/3f00/a001"),
             content: format!("{}{}00", k, o),
@@ -61,7 +61,7 @@ pub fn profile_to_json(p: &Profile) -> Result<String, Box<dyn std::error::Error>
     };
 
     if let (Some(kid), Some(kic)) = (&p.kid, &p.kic) {
-        let a004 = AdditionFields {
+        let a004 = AdditionField {
             name: String::from("Key material for OTA related functions"),
             file: String::from("/3f00/a004"),
             content: format!("b00011060303{}{}{}", kic, kid, rpad("", 2 * 76, None)),
