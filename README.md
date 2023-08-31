@@ -1,4 +1,4 @@
-# onomondo softsim-cli (ss_cli)
+# ss_cli
 
 ## Build
 `cargo build --release`
