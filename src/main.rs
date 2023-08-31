@@ -213,7 +213,7 @@ fn next(
     // switch on formatting options
     match format {
         config::Format::Hex => {
-            std::io::stdout().write_all(profile.iccid.unwrap().as_bytes())?;
+            std::io::stdout().write_all(profile::encoder::profile_to_hex(&profile).as_bytes())?;
         }
         config::Format::Json => {
             std::io::stdout().write_all(serde_json::to_string(&profile).unwrap().as_bytes())?;
