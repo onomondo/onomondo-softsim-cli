@@ -61,6 +61,7 @@ async fn get_profiles_helper(
     count: u32,
     config: &Config,
 ) -> Result<Vec<EncryptedProfile>, Box<dyn Error>> {
+    const VERSION: &str = env!("CARGO_PKG_VERSION");
     let body = RequestBody { count };
     let mut headers = HeaderMap::new();
     headers.insert(AUTHORIZATION, config.api_key.parse().unwrap());
@@ -68,6 +69,7 @@ async fn get_profiles_helper(
 
     let response = client
         .get(config.endpoint.clone())
+        .query(&[("version", VERSION)])
         .headers(headers)
         .json(&body)
         .send()
