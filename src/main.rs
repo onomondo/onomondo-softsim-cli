@@ -43,11 +43,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
             api_key,
             num_of_profiles,
             output,
-            endpoint,
+            url,
         } => {
             let api_config = models::profile::api::Config {
                 api_key: api_key.to_string(),
-                endpoint: endpoint.to_string(),
+                url: url.to_string(),
             };
             // match fetch_profiles(&api_config, num_of_profiles, &mut output.clone()).await {
             //     Ok(_) => log::info!("Ok"),
@@ -144,7 +144,7 @@ async fn fetch_profiles(
     log::info!(
         "Fetching {} profiles from {}",
         profile_count,
-        api_config.endpoint
+        api_config.url
     );
     log::debug!("Storing profiles at {}/profiles.json", store_at.display());
 

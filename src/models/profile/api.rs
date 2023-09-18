@@ -11,7 +11,7 @@ pub struct Response {
 
 pub struct Config {
     pub api_key: String,
-    pub endpoint: String,
+    pub url: String,
 }
 
 const MAX_COUNT: u32 = 1000;
@@ -68,7 +68,7 @@ async fn get_profiles_helper(
     headers.insert(CONTENT_TYPE, "application/json".parse().unwrap());
 
     let response = client
-        .get(config.endpoint.clone())
+        .get(config.url.clone())
         .query(&[("version", VERSION)])
         .headers(headers)
         .json(&body)
