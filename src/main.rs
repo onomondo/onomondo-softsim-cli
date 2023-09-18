@@ -191,7 +191,7 @@ async fn fetch_profiles(
         Err(e) => {
             log::info!("Removing file: {}", profiles_json.display());
             std::fs::remove_file(&profiles_json)?;
-            Err(e.into())
+            Err(e)
         }
     }
 }

@@ -46,7 +46,7 @@ pub async fn get(config: &Config, count: u32) -> Result<Vec<EncryptedProfile>, B
         profiles.extend(resp);
     }
 
-    if profiles.len() > 0 {
+    if !profiles.is_empty() {
         log::info!("Got {} profiles", profiles.len());
         Ok(profiles)
     } else {
