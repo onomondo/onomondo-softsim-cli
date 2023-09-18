@@ -63,8 +63,8 @@ Options:
           [default: 1]
   -o, --out <OUTPUT>
           [default: profiles]
-  -e, --endpoint <ENDPOINT>
-          [default: https://api.onomondo.com/sims/profile]
+  -u, --url <url>
+          [default: https://api.onomondo.com/sims/profiles]
   -h, --help
           Print help
 ```
@@ -83,7 +83,7 @@ Specify output path
 ss_cli fetch -a <your_api_key> -n 1000 -o "batch1"
 ```
 
-Optionally edit the api endpoint. Handy for local tests. 
+Optionally edit the api url. Handy for local tests. 
 ```
 ss_cli fetch -a <your_api_key> -n 1000 -e http:/localhost:44111
 ```

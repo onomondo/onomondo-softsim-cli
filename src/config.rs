@@ -24,8 +24,8 @@ pub enum SubCommand {
         num_of_profiles: u32,
         #[arg(short, long = "out", default_value = "profiles")]
         output: PathBuf,
-        #[arg(short, long, default_value = "https://api.onomondo.com/sims/profile")]
-        endpoint: String,
+        #[arg(short, long, default_value = "https://api.onomondo.com/sims/profiles")]
+        url: String,
     },
     /// Find next available profile. Decrypt and decode the profile and mark it as used.
     Next {
