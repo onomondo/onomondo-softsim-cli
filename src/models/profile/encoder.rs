@@ -64,7 +64,7 @@ pub fn profile_to_json(p: &Profile) -> Result<String, Box<dyn std::error::Error>
         let a004 = AdditionField {
             name: String::from("Key material for OTA related functions"),
             file: String::from("/3f00/a004"),
-            content: format!("b00011060303{}{}{}", kic, kid, rpad("", 2 * 76, None)),
+            content: format!("b00011060101{}{}{}", kic, kid, rpad("", 2 * 76, None)),
         };
 
         profile.additional_fields.push(a004);
