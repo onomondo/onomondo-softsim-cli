@@ -62,20 +62,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
         } => next(&private_key, &base_path.unwrap(), format),
     };
 
-    // println!("Handling RES: {:?}", res);
-
-    match res {
-        Ok(_) => {}
-        Err(e) => match e.downcast_ref::<models::ss_error::GenericError>() {
+    if let Err(e) = res {
+        match e.downcast_ref::<models::ss_error::GenericError>() {
             Some(err) => {
                 log::error!("Exiting due to error: {}", err.message);
-                std::process::exit(1);
             }
             _ => {
                 log::error!("Exiting due to error: {}", e);
-                return Err(e);
             }
-        },
+        }
+        std::process::exit(1);
     }
 
     Ok(())
@@ -170,31 +166,34 @@ async fn fetch_profiles(
                     "File already exists at {}. ss_cli won't overwrite existing files.",
                     store_at.display()
                 );
-                return Err(Box::new(ss_error::GenericError::new("".to_string())));
+                return Err("".into());
             }
-            return Err(Box::new(e));
+            return Err(e.into());
         }
     };
 
     let profiles = models::profile::api::get(api_config, profile_count).await;
+    match profiles {
+        Ok(p) => {
+            let json = serde_json::to_string(&p)?;
 
-    if let Ok(p) = profiles {
-        let json = serde_json::to_string(&p)?;
+            file.write_all(json.as_bytes())?;
 
-        file.write_all(json.as_bytes())?;
+            drop(file);
 
-        drop(file);
+            p.into_iter().for_each(|profile| {
+                fs::store(&profile, store_at, profile.iccid(), "json").unwrap();
+            });
 
-        p.into_iter().for_each(|profile| {
-            fs::store(&profile, store_at, profile.iccid(), "json").unwrap();
-        });
-
-        log::info!("Stored profiles in: {}", store_at.display());
-    } else if let Err(e) = profiles {
-        log::error!("Failed to fetch profiles: {}", e);
+            log::info!("Stored profiles in: {}", store_at.display());
+            Ok(())
+        }
+        Err(e) => {
+            log::info!("Removing file: {}", profiles_json.display());
+            std::fs::remove_file(&profiles_json)?;
+            Err(e.into())
+        }
     }
-
-    Ok(())
 }
 
 fn next(
