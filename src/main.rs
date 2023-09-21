@@ -14,7 +14,7 @@ mod config;
 mod models;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
+async fn main() {
     let arg = config::Args::parse();
     let verbosity = arg.verbosity;
     let log_level: LevelFilter = match verbosity {
@@ -62,19 +62,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
         } => next(&private_key, &base_path.unwrap(), format),
     };
 
-    if let Err(e) = res {
-        match e.downcast_ref::<models::ss_error::GenericError>() {
-            Some(err) => {
-                log::error!("Exiting due to error: {}", err.message);
-            }
-            _ => {
-                log::error!("Exiting due to error: {}", e);
-            }
-        }
+    if res.is_err() {
+        log::info!("Exiting with error");
         std::process::exit(1);
     }
-
-    Ok(())
 }
 
 fn get_next(base_path: &PathBuf) -> Result<std::fs::DirEntry, Box<dyn Error>> {
