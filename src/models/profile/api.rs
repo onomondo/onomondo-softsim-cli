@@ -37,7 +37,7 @@ pub async fn get(config: &Config, count: u32) -> Result<Vec<EncryptedProfile>, B
         let resp = match resp {
             Ok(r) => r,
             Err(e) => {
-                log::error!("An error occurred while retrieving profiles. : {}", e);
+                log::error!("An error occurred while retrieving profiles: {}", e);
                 err = Some(e);
                 break;
             }
@@ -78,9 +78,19 @@ async fn get_profiles_helper(
         .send()
         .await?;
 
-    if response.status() != reqwest::StatusCode::OK {
-        return Err(response.text().await?.into());
+    match response.status() {
+        reqwest::StatusCode::OK => (),
+        reqwest::StatusCode::UNAUTHORIZED => {
+            return Err("Unauthorized".into());
+        }
+        reqwest::StatusCode::NOT_FOUND => {
+            log::info!("No profiles found");
+        }
+        _ => {
+            return Err(response.text().await?.into());
+        }
     }
+
     let a = response.json::<Response>().await?;
     Ok(a.profiles)
 }
