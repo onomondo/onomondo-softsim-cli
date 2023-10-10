@@ -10,6 +10,12 @@ opt-level = 0
 
 [profile.release]
 opt-level = 3
+# opt-level = "z"
+strip = true  
+lto = true
+panic = "abort"
+
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
