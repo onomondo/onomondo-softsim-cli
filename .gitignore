@@ -7,3 +7,4 @@
 
 # macos artifacts..
 .DS_Store
+.env
