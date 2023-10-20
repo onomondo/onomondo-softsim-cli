@@ -24,7 +24,7 @@ struct ExtendedProfile {
     additional_fields: Vec<AdditionField>,
 }
 
-pub fn profile_to_json(p: &Profile) -> Result<String, Box<dyn std::error::Error>> {
+pub fn to_json(p: &Profile) -> Result<String, Box<dyn std::error::Error>> {
     let mut profile = ExtendedProfile {
         profile: p.clone(),
         additional_fields: Vec::new(),
@@ -74,7 +74,7 @@ pub fn profile_to_json(p: &Profile) -> Result<String, Box<dyn std::error::Error>
     Ok(t)
 }
 
-pub fn profile_to_hex(p: &Profile) -> String {
+pub fn to_hex(p: &Profile) -> String {
     let mut ret = String::new();
     if let Some(imsi) = &p.imsi {
         let encoded_imsi = encode_imsi(imsi);
@@ -206,6 +206,6 @@ mod tests {
             "98001032547698103214",
             swap_nibbles(p.iccid.as_deref().unwrap())
         );
-        assert_eq!(profile_to_hex(&p), "01120809101010325406360214980010325476981032140320000000000000000000000000000000000420000102030405060708090A0B0C0D0E0F0520000102030405060708090A0B0C0D0E0F0620000102030405060708090A0B0C0D0E0F")
+        assert_eq!(to_hex(&p), "01120809101010325406360214980010325476981032140320000000000000000000000000000000000420000102030405060708090A0B0C0D0E0F0520000102030405060708090A0B0C0D0E0F0620000102030405060708090A0B0C0D0E0F")
     }
 }
