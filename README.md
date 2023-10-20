@@ -1,4 +1,4 @@
-# SoftSIM cli
+# SoftSIM CLI
 
 Small tools to help out with provisioning before and during production of your SoftSIM enabled device. 
 
