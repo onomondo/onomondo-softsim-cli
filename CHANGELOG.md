@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/onomondo/onomondo-softsim-cli/compare/v0.2.0...v0.2.1) (2023-10-20)
+
+
+### Bug Fixes
+
+* trigger release with updated binary ([79adf9b](https://github.com/onomondo/onomondo-softsim-cli/commit/79adf9b77d49a1e374464261d0793f00037fd998))
+
 ## [0.2.0](https://github.com/onomondo/onomondo-softsim-cli/compare/v0.1.1...v0.2.0) (2023-09-18)
 
 
