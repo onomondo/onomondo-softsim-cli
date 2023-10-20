@@ -1,32 +1,50 @@
-# ss_cli
+# SoftSIM cli
 
-## Build
-`cargo build --release`
-## Test
-`cargo test`
-## Benchmark
-Assuming you faked a bunch of profiles:
+Small tools to help out with provisioning before and during production of your SoftSIM enabled device. 
 
+Provisioning is split in two distinct steps:
+
+1. Pre-production. Fetch `n` profiles from the Onomondo API to avoid exessive load on API and to remove any dependencies on stable internet. The profiles are encrypted using your public key.
+2. During production. Continiously get a new unique profile correctly formatted to specifications. 
+
+These steps correspond one-to-one with the available commands in the CLI tool.
+
+### Command: Fetch
+This options fetches the specified number of profiles from the Onomondo API. Use the SoftSIM API generated in our platform to get access. 
+
+### Command: Next
+This option find the next unused profile on your local system. The profile is decrypted using the private key pointed to by the `--key` argument. After decryption and encoding the file is prepended with `__` to invalidate the profile.  
+
+
+## Generate public / private key-pair
+To generate a SoftSIM API key you need a key pair as well. 
+
+To generate a key pair:
+```console
+ssh-keygen -t rsa -m PEM -b 4096 -f <path_to_new_key>
 ```
-hyperfine --runs 1000 --warmup=1 --shell=none './target/release/ss_cli next --key resources/test/key'
-Benchmark 1: ./target/release/ss_cli next --key resources/test/key
-  Time (mean ± σ):       3.0 ms ±   0.8 ms    [User: 1.5 ms, System: 1.5 ms]
-  Range (min … max):     2.4 ms …  24.4 ms    1000 runs
+
+The public key is expected to be PEM encoded 
+```
+-----BEGIN PUBLIC KEY-----
+.....
+-----END PUBLIC KEY-----
+```
+Which can be obtained with 
+```console
+ssh-keygen -e -m PKCS8 -f <path_to_public_key>.pub
 ```
 
-This solustion doesn't scale well above millions of profiles, but good enough for the standard prodction line. 
+Use the to public key to create an API key on https://app.onomondo.com/
 
+*For testing* https://cryptotools.net/rsagen can be helpful to quickly get started. Use at least 2048 bit keys. 
 
-## Installing commitlint + commit hook
-```
-npm install --save-dev @commitlint/{cli,config-conventional}
-npx husky install
-```
-
+## Installation
+Prebuild binaries can be found under releases. Optionally build from source. See relevant section below. 
 
 ## Usage
 ```
-Usage: ss_cli [OPTIONS] <COMMAND>
+Usage: softsim [OPTIONS] <COMMAND>
 
 Commands:
   fetch
@@ -44,17 +62,17 @@ Options:
   -V, --version
           Print version
 ```
-### Examples
+### Log level
 Set log level to `TRACE`
 ```
-ss_cli -vvv ---help
+softsim -vvv ---help
 ```
 
 ### Fetch
-Pulls profiles form api.onomondo.com and writes to disk. Specify `count` to fetch many for production usage. `ss_cli` breaks the count into batches of max 1000. 
+Pulls profiles form api.onomondo.com and writes to disk. Specify `count` to fetch many for production usage. `softsim` breaks the count into batches of max 1000. 
 
 ```
-Usage: ss_cli fetch [OPTIONS] --api-key <API_KEY>
+Usage: softsim fetch [OPTIONS] --api-key <API_KEY>
 
 Options:
   -a, --api-key <API_KEY>
@@ -72,22 +90,16 @@ Options:
 
 ### Examples
 
-Get 10000 profiles and store under `./profile/` 
+Get 5678 profiles and store under `./profile/` 
       
 ```
-ss_cli fetch -a <your_api_key> -n 10000
+softsim fetch -a <your_api_key> -n 5678
 ```
 
 Specify output path
 ```
-ss_cli fetch -a <your_api_key> -n 1000 -o "batch1"
+softsim fetch -a <your_api_key> -n 1000 -o "batch1"
 ```
-
-Optionally edit the api url. Handy for local tests. 
-```
-ss_cli fetch -a <your_api_key> -n 1000 -e http:/localhost:44111
-```
-
 
 ### Next 
 
@@ -98,7 +110,7 @@ Find next available profile and outputs decrypted and decoded values. Specify `f
 `JSON` - outputs RAW profile and relevant meta information. 
 
 ```
-Usage: ss_cli next [OPTIONS] --key <KEY>
+Usage: softsim next [OPTIONS] --key <KEY>
 
 Options:
   -k, --key <KEY>
@@ -113,12 +125,42 @@ Options:
 
 ### Example
 
-Write hex encoded profiles to stdout. Optionally this can be piped directly to a device if ready to receive profile/
+Write hex encoded profiles to stdout. Optionally this can be piped directly to a device if ready to receive profile.
+
+`--key` should point to the private key generated in the previous steps. 
+
+
 ```
-ss_cli next --key resources/test/key
+softsim next --key <path_to_private_key>
 ```
 
 Specify format to `json`
 ```
-ss_cli next --key resources/test/key --format=json
+softsim next --key resources/test/key --format=json
+```
+
+`softsim next` can be called from manufacturing scripts as needed.
+
+
+## Build
+`cargo build --release`
+## Test
+`cargo test`
+## Benchmark
+Assuming you faked a bunch of profiles:
+
+```
+hyperfine --runs 1000 --warmup=1 --shell=none './target/release/softsim next --key resources/test/key'
+Benchmark 1: ./target/release/softsim next --key resources/test/key
+  Time (mean ± σ):       3.0 ms ±   0.8 ms    [User: 1.5 ms, System: 1.5 ms]
+  Range (min … max):     2.4 ms …  24.4 ms    1000 runs
+```
+
+This solustion doesn't scale well above millions of profiles, but good enough for the standard prodction line. 
+
+
+## Installing commitlint + commit hook
+```
+npm install --save-dev @commitlint/{cli,config-conventional}
+npx husky install
 ```
