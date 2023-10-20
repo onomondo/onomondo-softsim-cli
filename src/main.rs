@@ -49,10 +49,7 @@ async fn main() {
                 api_key: api_key.to_string(),
                 url: url.to_string(),
             };
-            // match fetch_profiles(&api_config, num_of_profiles, &mut output.clone()).await {
-            //     Ok(_) => log::info!("Ok"),
-            //     Err(_) => log::info!("Exiting due to error"),
-            // }
+
             fetch_profiles(&api_config, num_of_profiles, &mut output.clone()).await
         }
         config::SubCommand::Next {
@@ -198,18 +195,14 @@ fn next(
     let profile = read_and_decrypt(&profile_path.path(), &key)?;
     mark_exported(&profile_path)?;
 
-    // formatted_
-
-    // switch on formatting options
     match format {
         config::Format::Hex => {
-            std::io::stdout().write_all(profile::encoder::profile_to_hex(&profile).as_bytes())?;
+            std::io::stdout().write_all(profile::encoder::to_hex(&profile).as_bytes())?;
         }
 
         config::Format::Json => {
-            std::io::stdout().write_all(profile::encoder::profile_to_json(&profile)?.as_bytes())?;
+            std::io::stdout().write_all(profile::encoder::to_json(&profile)?.as_bytes())?;
         }
     }
-
     Ok(())
 }
