@@ -4,33 +4,33 @@ Small tools to help out with provisioning before and during production of your S
 
 Provisioning is split in two distinct steps:
 
-1. Pre-production. Fetch `n` profiles from the Onomondo API to avoid exessive load on API and to remove any dependencies on stable internet. The profiles are encrypted using your public key.
-2. During production. Continiously get a new unique profile correctly formatted to specifications.
+1. Pre-production: Fetch `n` profiles from the Onomondo API to avoid excessive load on API and to remove any dependencies on stable internet. The profiles are encrypted using your public key.
+2. During production: Continuously get a new unique profile correctly formatted to specifications.
 
 These steps correspond one-to-one with the available commands in the CLI tool.
 
 ### Command: Fetch
-This option fetches the specified number of profiles from the Onomondo API. Use the SoftSIM API generated in our platform to get access.
+This options fetches the specified number of profiles from the Onomondo API. Use the SoftSIM API generated in our platform to get access.
 
 ### Command: Next
 This option finds the next unused profile on your local system. The profile is decrypted using the private key pointed to by the `--key` argument. After decryption and encoding the file is prepended with `__` to invalidate the profile.
 
 
 ## Generate public / private key-pair
-To generate a SoftSIM API key you need a key pair as well. Use at least 2048 bit keys.
+To generate a SoftSIM API key you will also need a key pair. Use at least 2048 bit keys.
 
 To generate a key pair:
 ```console
 ssh-keygen -t rsa -m PEM -b 4096 -f <path_to_new_key>
 ```
 
-The public key is expected to be PEM encoded
+The public key is expected to be PEM encoded:
 ```
 -----BEGIN PUBLIC KEY-----
 .....
 -----END PUBLIC KEY-----
 ```
-Which can be obtained with
+This can be obtained with:
 ```console
 ssh-keygen -e -m PKCS8 -f <path_to_public_key>.pub
 ```
@@ -40,7 +40,7 @@ Use the to public key to create an API key on https://app.onomondo.com/api-keys/
 *For testing* https://cryptotools.net/rsagen can be helpful to quickly get started.
 
 ## Installation
-Prebuild binaries can be found under releases. Optionally build from source. See relevant section below.
+Pre-built binaries can be found under releases. Optionally build from source. See relevant section below.
 
 ## Usage
 ```
@@ -69,7 +69,7 @@ softsim -vvv ---help
 ```
 
 ### Fetch
-Pulls profiles from api.onomondo.com and writes to disk. Specify `count` to fetch many for production usage. `softsim` breaks the count into batches of max 1000.
+Pulls profiles from api.onomondo.com and writes to disk. Specify `count` to fetch many for production usage. `softsim` breaks the count into batches of max. 1000.
 
 ```
 Usage: softsim fetch [OPTIONS] --api-key <API_KEY>
@@ -90,20 +90,20 @@ Options:
 
 ### Examples
 
-Get 5678 profiles and store under `./profile/`
+Get 5678 profiles and store under `./profile/`:
 
 ```
 softsim fetch -a <your_api_key> -n 5678
 ```
 
-Specify output path
+Specify output path:
 ```
 softsim fetch -a <your_api_key> -n 1000 -o "batch1"
 ```
 
 ### Next
 
-Finds the next available profile and outputs decrypted and decoded values. Specify `format` to change encoding.
+Find the next available profile and outputs decrypted and decoded values. Specify `format` to change encoding.
 
 `HEX` - suitable for SoftSIM integrations made by Onomondo
 
@@ -125,7 +125,7 @@ Options:
 
 ### Example
 
-Write hex encoded profiles to stdout. Optionally this can be piped directly to a device if ready to receive profile.
+Write hex encoded profiles to stdout. Optionally, this can be piped directly to a device, if ready to receive profile.
 
 `--key` should point to the private key generated in the previous steps.
 
@@ -147,7 +147,7 @@ softsim next --key resources/test/key --format=json
 ## Test
 `cargo test`
 ## Benchmark
-Assuming you faked a bunch of profiles:
+In the scenario of simulating profiles:
 
 ```
 hyperfine --runs 1000 --warmup=1 --shell=none './target/release/softsim next --key resources/test/key'
@@ -156,7 +156,7 @@ Benchmark 1: ./target/release/softsim next --key resources/test/key
   Range (min … max):     2.4 ms …  24.4 ms    1000 runs
 ```
 
-This solution doesn't scale well above millions of profiles, but is good enough for the standard production line.
+This should perform well on the standard production line but can lead to issues when you encounter a threshold of a million profiles.
 
 
 ## Installing commitlint + commit hook
