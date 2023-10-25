@@ -10,10 +10,10 @@ Provisioning is split in two distinct steps:
 These steps correspond one-to-one with the available commands in the CLI tool.
 
 ### Command: Fetch
-This options fetches the specified number of profiles from the Onomondo API. Use the SoftSIM API generated in our platform to get access.
+This command fetches the specified number of profiles from the Onomondo API. Use the SoftSIM API generated in our platform to get access.
 
 ### Command: Next
-This option finds the next unused profile on your local system. The profile is decrypted using the private key pointed to by the `--key` argument. After decryption and encoding the file is prepended with `__` to invalidate the profile.
+This command finds the next unused profile on your local system. The profile is decrypted using the private key pointed to by the `--key` argument. After decryption and encoding the file is prepended with `__` to invalidate the profile.
 
 
 ## Generate public / private key-pair
