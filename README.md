@@ -17,7 +17,7 @@ This command finds the next unused profile on your local system. The profile is 
 
 
 ## Generate public / private key-pair
-To generate a SoftSIM API key you will also need a key pair. Use at least 2048 bit keys.
+To generate a SoftSIM API key you will also need a key pair. Use 4096 bit keys.
 
 To generate a key pair:
 ```console
