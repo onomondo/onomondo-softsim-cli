@@ -59,8 +59,9 @@ async fn main() {
         } => next(&private_key, &base_path.unwrap(), format),
     };
 
-    if res.is_err() {
+    if let Err(res) = res {
         log::info!("Exiting with error");
+        log::trace!("{:?}", res);
         std::process::exit(1);
     }
 }
@@ -197,11 +198,11 @@ fn next(
 
     match format {
         config::Format::Hex => {
-            std::io::stdout().write_all(profile::encoder::to_hex(&profile).as_bytes())?;
+            std::io::stdout().write_all(profile.to_hex().as_bytes())?;
         }
 
         config::Format::Json => {
-            std::io::stdout().write_all(profile::encoder::to_json(&profile)?.as_bytes())?;
+            std::io::stdout().write_all(profile.to_json()?.as_bytes())?;
         }
     }
     Ok(())

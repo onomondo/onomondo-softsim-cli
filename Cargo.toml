@@ -7,11 +7,13 @@ debug = true
 
 [profile.dev]
 opt-level = 0
+debug = true
+lto = false
 
 [profile.release]
 opt-level = 3
 # opt-level = "z"
-strip = true  
+strip = true
 lto = true
 panic = "abort"
 
@@ -24,12 +26,11 @@ chrono = "0.4.24"
 clap = { version = "4.2.7", features = ["derive"] }
 env_logger = "0.10.0"
 futures = "0.3.28"
+hex = "0.4.3"
 log = "0.4.17"
 reqwest = { version = "0.11", features = ["blocking", "json"] }
 rsa = { version = "0.9.2", features = ["sha2", "sha1"] }
-serde =  {version = "1.0.163",  features = ["derive"] }
+serde = { version = "1.0.163", features = ["derive"] }
 serde_json = "1.0.96"
 sha1 = "0.10.5"
 tokio = { version = "1", features = ["full"] }
-
-
