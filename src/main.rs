@@ -190,7 +190,13 @@ fn next(
     base_path: &PathBuf,
     format: config::Format,
 ) -> Result<(), Box<dyn Error>> {
-    let key = models::profile::crypto::Key::new(key_path)?;
+    let key = match models::profile::crypto::Key::new(key_path) {
+        Ok(k) => k,
+        Err(e) => {
+            log::debug!("Failed to load key: {}", e);
+            return Err(e);
+        }
+    };
 
     let profile_path = get_next(base_path)?;
     let profile = read_and_decrypt(&profile_path.path(), &key)?;
