@@ -9,8 +9,11 @@ pub struct Profile {
     pub opc: Option<String>,
     pub kid: Option<String>,
     pub kic: Option<String>,
-    pub msisdn: Option<String>,
     pub imsi: Option<String>,
+    pub pin: Option<String>,
+    pub puk: Option<String>,
+    pub adm: Option<String>,
+    pub smsp: Option<String>,
 }
 #[derive(Serialize, Deserialize, Debug)]
 pub struct EncryptedProfile {
