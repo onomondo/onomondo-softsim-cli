@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/onomondo/onomondo-softsim-cli/compare/v0.2.1...v0.3.0) (2023-11-22)
+
+
+### Features
+
+* addional tags are now encoded. fixing some unclear silent err ([#39](https://github.com/onomondo/onomondo-softsim-cli/issues/39)) ([36cf9d6](https://github.com/onomondo/onomondo-softsim-cli/commit/36cf9d6c154f1158f0e768a83f0f2591374f571c))
+
 ## [0.2.1](https://github.com/onomondo/onomondo-softsim-cli/compare/v0.2.0...v0.2.1) (2023-10-20)
 
 
