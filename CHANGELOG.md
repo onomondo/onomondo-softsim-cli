@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/onomondo/onomondo-softsim-cli/compare/v0.3.0...v0.3.1) (2023-11-30)
+
+
+### Bug Fixes
+
+* 🎸 add additional logging. Some error msg weren't clear ([#42](https://github.com/onomondo/onomondo-softsim-cli/issues/42)) ([cb17a36](https://github.com/onomondo/onomondo-softsim-cli/commit/cb17a3697c16e1a5dda1fedf93a3bb5a7bc91962))
+
 ## [0.3.0](https://github.com/onomondo/onomondo-softsim-cli/compare/v0.2.1...v0.3.0) (2023-11-22)
 
 
