@@ -111,9 +111,12 @@ fn read_and_decrypt(
 ) -> Result<profile::Profile, Box<dyn Error>> {
     let file = std::fs::File::open(path)?;
     let reader = std::io::BufReader::new(file);
-    let encrypted_profile: models::profile::EncryptedProfile = serde_json::from_reader(reader)?;
+    let encrypted_profile: models::profile::EncryptedProfile = serde_json::from_reader(reader)
+        .map_err(|e| format!("Failed to parse encrypted profile. Is the file corrupted? {e}"))?;
 
-    let mut profile = key.decrypt(encrypted_profile.profile())?;
+    let mut profile = key
+        .decrypt(encrypted_profile.profile())
+        .map_err(|e| format!("Failed to decrypt profile. Is the key correct? {e}"))?;
     if profile.iccid.is_none() {
         profile.iccid = Some(encrypted_profile.iccid().clone());
     }
