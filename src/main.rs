@@ -4,8 +4,6 @@ use env_logger::Builder;
 use log::LevelFilter;
 use models::fs;
 use models::profile;
-use models::ss_error;
-
 use std::error::Error;
 use std::io::Write;
 use std::path::PathBuf;
@@ -21,7 +19,9 @@ async fn main() {
         1 | 2 => LevelFilter::Debug,
         3 => LevelFilter::Trace,
         _ => LevelFilter::Info,
+
     };
+
 
     Builder::new()
         .format(|buf, record| {
@@ -68,27 +68,37 @@ async fn main() {
 
 fn get_next(base_path: &PathBuf) -> Result<std::fs::DirEntry, Box<dyn Error>> {
     // find next unused profile.
-    let next = std::fs::read_dir(base_path).unwrap().find(|p| {
-        if let Ok(entry) = p {
-            let path = entry.path();
-            let current_path = path
-                .file_stem()
-                .unwrap_or_else(|| std::ffi::OsStr::new(""))
-                .to_str()
-                .unwrap();
-            if !current_path.starts_with("__") && !current_path.starts_with("profiles") {
-                return true;
+    let next = std::fs::read_dir(base_path)
+        .map_err(|e| {
+            log::error!("Failed to read directory: {}", base_path.display());
+            format!(
+                "Failed to read directory: {} Err: {}",
+                base_path.display(),
+                e
+            )
+        })?
+        .find(|p| {
+            if let Ok(entry) = p {
+                let path = entry.path();
+                let current_path = path
+                    .file_stem()
+                    .unwrap_or_else(|| std::ffi::OsStr::new(""))
+                    .to_str()
+                    .unwrap();
+                if !current_path.starts_with("__")
+                    && !current_path.starts_with("profiles")
+                    && path.extension().unwrap_or(std::ffi::OsStr::new("notjson")).eq("json")
+                {
+                    return true;
+                }
             }
-        }
-        false
-    });
+            false
+        });
 
     match next {
         None => {
             log::error!("No profiles found at {}", base_path.display());
-            Err(Box::new(ss_error::GenericError::new(
-                "No profiles was found".to_string(),
-            )))
+            Err("No profiles was found".into())
         }
         Some(val) => Ok(val?),
     }
@@ -202,6 +212,7 @@ fn next(
     };
 
     let profile_path = get_next(base_path)?;
+    log::debug!("Next profile: {}", profile_path.path().display());
     let profile = read_and_decrypt(&profile_path.path(), &key)?;
     mark_exported(&profile_path)?;
 
