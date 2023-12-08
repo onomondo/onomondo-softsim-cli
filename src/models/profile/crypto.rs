@@ -17,7 +17,12 @@ impl Key {
         let buffer = read_to_string(path)?;
 
         // let private_key = rsa::pkcs8::DecodePrivateKey::from_pkcs8_pem(&buffer)?;
-        let private_key = RsaPrivateKey::from_pkcs1_pem(&buffer)?;
+        let private_key = RsaPrivateKey::from_pkcs1_pem(&buffer).map_err(|e| {
+            format!(
+                "Failed to decode private key. Is the key corrupted? Err: {}",
+                e
+            )
+        })?;
         Ok(Key {
             key: private_key,
             os_path: path.clone(),
@@ -25,7 +30,12 @@ impl Key {
     }
 
     pub fn decrypt(&self, data: &String) -> Result<Profile, Box<dyn std::error::Error>> {
-        let bytes = general_purpose::STANDARD.decode(data).unwrap();
+        let bytes = general_purpose::STANDARD.decode(data).map_err(|e| {
+            format!(
+                "Failed to decode base64 string. Is the data corrupted? Err: {}",
+                e
+            )
+        })?;
 
         let padding = Oaep::new::<sha1::Sha1>();
         let dec_date = String::from_utf8(self.key.decrypt(padding, &bytes)?)?;
