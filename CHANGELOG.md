@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/onomondo/onomondo-softsim-cli/compare/v0.3.1...v0.3.2) (2023-12-08)
+
+
+### Bug Fixes
+
+* 🐛 importing keys could err out with little context ([5f03b98](https://github.com/onomondo/onomondo-softsim-cli/commit/5f03b98d9538e5afdfce9295ace1cf1b8f5728ce))
+
 ## [0.3.1](https://github.com/onomondo/onomondo-softsim-cli/compare/v0.3.0...v0.3.1) (2023-11-30)
 
 
