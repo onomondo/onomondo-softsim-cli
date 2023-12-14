@@ -64,6 +64,7 @@ Options:
   -V, --version
           Print version
 ```
+
 ### Log level
 Set log level to `TRACE`
 ```
@@ -89,9 +90,7 @@ Options:
           Print help
 ```
 
-
 ### Examples
-
 Get 5678 profiles and store under `./profile/`:
 
 ```
@@ -104,10 +103,9 @@ softsim fetch -a <your_api_key> -n 1000 -o "batch1"
 ```
 
 ### Next
-
 Find the next available profile and outputs decrypted and decoded values. Specify `format` to change encoding.
 
-`HEX` - suitable for SoftSIM integrations made by Onomondo
+`HEX` - suitable for SoftSIM integrations made by Onomondo.
 
 `JSON` - outputs RAW profile and relevant meta information.
 
@@ -126,8 +124,7 @@ Options:
 ```
 
 ### Example
-
-Write hex encoded profiles to stdout. Optionally, this can be piped directly to a device, if ready to receive profile.
+Write hex encoded profiles to stdout. Optionally, this can be piped directly to a device, if the device is ready to receive a profile in this specific format.
 
 `--key` should point to the private key generated in the previous steps.
 
@@ -143,9 +140,11 @@ softsim next --key resources/test/key --format=json
 
 `softsim next` can be called from manufacturing scripts as needed.
 
-
 ## Build
 `cargo build --release`
+
+After building the SoftSIM executable is located in: `target/release/softsim`
+
 ## Test
 `cargo test`
 ## Benchmark
@@ -159,7 +158,6 @@ Benchmark 1: ./target/release/softsim next --key resources/test/key
 ```
 
 This should perform well on the standard production line but can lead to issues when you encounter a threshold of a million profiles.
-
 
 ## Installing commitlint + commit hook
 ```
