@@ -24,6 +24,8 @@ To generate a key pair:
 ssh-keygen -t rsa -m PEM -b 4096 -f <path_to_new_key>
 ```
 
+> The Onomondo SoftSIM CLI tool is not supporting keys, that are protected by password.
+
 The public key is expected to be PEM encoded:
 ```
 -----BEGIN PUBLIC KEY-----
