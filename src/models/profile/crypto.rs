@@ -28,8 +28,8 @@ impl Key {
             keys.push(RsaPrivateKey::from_pkcs8_pem(&string).map_err(|e|{format!("pkcs8-pem{}",e)}));
             keys.push(RsaPrivateKey::from_pkcs1_pem(&string).map_err(|e|{format!("pkcs1-pem{}",e)}));
         }
-        keys.push(RsaPrivateKey::from_pkcs1_der(&buffer.clone()).map_err(|e|{format!("pkcs1-der{}",e)}));
         keys.push(RsaPrivateKey::from_pkcs8_der(&buffer).map_err(|e|{format!("pkcs8-der{}",e)}));
+        keys.push(RsaPrivateKey::from_pkcs1_der(&buffer).map_err(|e|{format!("pkcs1-der{}",e)}));
 
         // we're cloning in order to report errors later... 
         if let Some(private_key) = keys.clone().into_iter().find(|key| key.is_ok()){
@@ -40,7 +40,7 @@ impl Key {
 
         } else {
             for key in &keys {
-                log::trace!("Error: {:?}", key);
+                log::trace!("{:?}", key);
             } 
 
              Err("Failed to decode private key. Is the key corrupted?".into())
