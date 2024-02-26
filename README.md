@@ -145,6 +145,8 @@ softsim next --key resources/test/key --format=json
 
 After building the SoftSIM executable is located in: `target/release/softsim`
 
+Alternatively, `cargo install --path .` to add SoftSIM cli to your path directly.
+
 ## Test
 `cargo test`
 ## Benchmark
