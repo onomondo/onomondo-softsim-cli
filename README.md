@@ -99,7 +99,7 @@ softsim fetch -a <your_api_key> -n 5678
 
 Specify output path:
 ```
-softsim fetch -a <your_api_key> -n 1000 -o "batch1"
+softsim fetch -a <your_api_key> -n 5678 -o "batch1"
 ```
 
 ### Next
