@@ -1,8 +1,9 @@
 use base64::{engine::general_purpose, Engine as _};
 use rsa::pkcs1::DecodeRsaPrivateKey;
+use rsa::pkcs8::DecodePrivateKey;
 use rsa::{Oaep, RsaPrivateKey};
 use serde_json;
-use std::fs::read_to_string;
+use std::fs;
 use std::path::PathBuf;
 
 use super::Profile;
@@ -14,19 +15,37 @@ pub struct Key {
 
 impl Key {
     pub fn new(path: &PathBuf) -> Result<Key, Box<dyn std::error::Error>> {
-        let buffer = read_to_string(path)?;
-
-        // let private_key = rsa::pkcs8::DecodePrivateKey::from_pkcs8_pem(&buffer)?;
-        let private_key = RsaPrivateKey::from_pkcs1_pem(&buffer).map_err(|e| {
+        let buffer = fs::read(path).map_err(|err| {
             format!(
-                "Failed to decode private key. Is the key corrupted? Err: {}",
-                e
+                "Failed to read private key. Is the path correct? Err: {}",
+                err
             )
         })?;
-        Ok(Key {
-            key: private_key,
-            os_path: path.clone(),
-        })
+
+        let mut keys = Vec::new();
+          
+        if let Ok(string) = String::from_utf8(buffer.clone()) {
+            keys.push(RsaPrivateKey::from_pkcs8_pem(&string).map_err(|e|{format!("pkcs8-pem{}",e)}));
+            keys.push(RsaPrivateKey::from_pkcs1_pem(&string).map_err(|e|{format!("pkcs1-pem{}",e)}));
+        }
+        keys.push(RsaPrivateKey::from_pkcs8_der(&buffer).map_err(|e|{format!("pkcs8-der{}",e)}));
+        keys.push(RsaPrivateKey::from_pkcs1_der(&buffer).map_err(|e|{format!("pkcs1-der{}",e)}));
+
+        // we're cloning in order to report errors later... 
+        if let Some(private_key) = keys.clone().into_iter().find(|key| key.is_ok()){
+            Ok(Key {
+                key: private_key.unwrap(),
+                os_path: path.clone(),
+            })
+
+        } else {
+            for key in &keys {
+                log::trace!("{:?}", key);
+            } 
+
+             Err("Failed to decode private key. Is the key corrupted?".into())
+        }
+ 
     }
 
     pub fn decrypt(&self, data: &String) -> Result<Profile, Box<dyn std::error::Error>> {
@@ -49,6 +68,7 @@ impl Key {
 mod tests {
     use super::*;
     use crate::models::profile::api;
+    use fs::read_to_string;
     #[test]
     fn import_key() {
         let mut sample_key = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
