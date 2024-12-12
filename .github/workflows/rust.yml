@@ -16,13 +16,13 @@ jobs:
           override: true
       - uses: taiki-e/install-action@cargo-binstall
       - run: cargo binstall --no-confirm --no-symlinks sccache
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
-            ~/.cache/          
+            ~/.cache/
           key: ${{ runner.os }}-sccache-${{ hashFiles('**/Cargo.lock') }}
       - uses: chetan/git-restore-mtime-action@v1
       - run: cargo test --locked --no-run
