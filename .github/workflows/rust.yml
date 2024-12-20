@@ -1,6 +1,8 @@
-on: [push]
+name: General CI Build & Test Flow
 
-name: Ci
+on: 
+  push: {branches: master}
+  pull_request: {branches: master}
 
 jobs:
   build:
