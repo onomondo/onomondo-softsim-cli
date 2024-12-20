@@ -123,11 +123,20 @@ Options:
           Print help
 ```
 
+### SoftSIM profile illustration
+The SoftSIM profile will be represented in the following format when fetched from Onomondo. The SoftSIM is encrypted in this format.
+```
+{"iccid":"89457300000000000000","profile":"gwixsycJq295xfHxOvwjiNwj8feRHeDwIUsR8xhTBej31CxUKc9Axw1LGffdaIMGlBMx2XxGO1M7ZJHqG4kKcypmIc19vn8Iu4vthoxzRtMavTk+w+0yp1dZbZdhnsDZd96Zt3upKPXTNFoG+m8BOwmBR5lGlzdCuJytvHpPV5WcyL0Tdy5K2zyhZh2V9j+DhwrVrVyciJeWWRUzDSScaS+VhhrSo0EtsrfVamIJDv4XtWrseVnn6fh1ArlftTNbMcC/qpT/Q2UGc4lyVaDKjqZeFYoUR6cmVhlK55gRL+kPJ6qYUsbtgh1rcqjrs4S6xpIJnCgvR2wVpFJqGOhnyEtFFw5CgKvZol0ixNn6IPOyMyPHzyUe7UuyyFUPk5kDR29vjb+hZN1hh354lEOwMOpMFYBVt2Ug66Zs5eATVC5Vv7QdOsyTgOqvINmPUDvIwfTFMiG3t7rWXs7wFJKYLiU764rTGrTjS1yTzFIGpEqkze68b9Ehx6APB0KVeUQM2UB2439VUlcZ2CAwN+qvsycPfBlX1iIN2vjG7ZUWi0SQ9jrOA1xEvgBgqa1EDkkv5j1usEtm3Zu5EvZlsLbMdmai2GWX0p99BFf2WpwqPI4FMflntefZ9RdzPPc4XWp1PCBUfMDMCyeqJEb34aGAtASt+DlKLlXmcYczkQoe5mM="}
+```
+Following a successful decryption and formatting of the encrypted SoftSIM profile, the CLI tool will excport the profile in the following format. It is this and only this format that is accepted by SoftSIM enabled devices.
+```
+01120809101010325406360214980010325476981032140320000000000000000000000000000000000420000102030405060708090A0B0C0D0E0F0520000102030405060708090A0B0C0D0E0F0620000102030405060708090A0B0C0D0E0F
+```
+
 ### Example
 Write hex encoded profiles to stdout. Optionally, this can be piped directly to a device, if the device is ready to receive a profile in this specific format.
 
 `--key` should point to the private key generated in the previous steps.
-
 
 ```
 softsim next --key <path_to_private_key>
