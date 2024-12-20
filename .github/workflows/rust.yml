@@ -1,6 +1,6 @@
 name: General CI Build & Test Flow
 
-on: [push, pull_request]
+on: push
 
 jobs:
   build:
