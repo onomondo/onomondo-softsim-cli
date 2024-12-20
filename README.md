@@ -16,6 +16,12 @@ This command fetches the specified number of profiles from the Onomondo API. Use
 This command finds the next unused profile on your local system. The profile is decrypted using the private key pointed to by the `--key` argument. After decryption and encoding the file is prepended with `__` to invalidate the profile.
 
 
+## Installation
+Pre-built binaries can be found under [releases](https://github.com/onomondo/onomondo-softsim-cli/releases). 
+
+It is optional to build the project from source. See the [build](#build) section below.
+
+
 ## Generate public / private key-pair
 To generate a SoftSIM API key you will also need a key pair. Use 4096 bit keys.
 
@@ -37,12 +43,10 @@ This can be obtained with:
 ssh-keygen -e -m PKCS8 -f <path_to_public_key>.pub
 ```
 
-Use the to public key to create an API key on https://app.onomondo.com/api-keys/softsim/new
+Use the public key to create an API key on https://app.onomondo.com/api-keys/softsim/new
 
 *For testing* https://cryptotools.net/rsagen can be helpful to quickly get started.
 
-## Installation
-Pre-built binaries can be found under releases. Optionally build from source. See relevant section below.
 
 ## Usage
 ```
@@ -99,7 +103,7 @@ softsim fetch -a <your_api_key> -n 5678
 
 Specify output path:
 ```
-softsim fetch -a <your_api_key> -n 1000 -o "batch1"
+softsim fetch -a <your_api_key> -n 5678 -o "batch1"
 ```
 
 ### Next
@@ -128,7 +132,7 @@ The SoftSIM profile will be represented in the following format when fetched fro
 ```
 {"iccid":"89457300000000000000","profile":"gwixsycJq295xfHxOvwjiNwj8feRHeDwIUsR8xhTBej31CxUKc9Axw1LGffdaIMGlBMx2XxGO1M7ZJHqG4kKcypmIc19vn8Iu4vthoxzRtMavTk+w+0yp1dZbZdhnsDZd96Zt3upKPXTNFoG+m8BOwmBR5lGlzdCuJytvHpPV5WcyL0Tdy5K2zyhZh2V9j+DhwrVrVyciJeWWRUzDSScaS+VhhrSo0EtsrfVamIJDv4XtWrseVnn6fh1ArlftTNbMcC/qpT/Q2UGc4lyVaDKjqZeFYoUR6cmVhlK55gRL+kPJ6qYUsbtgh1rcqjrs4S6xpIJnCgvR2wVpFJqGOhnyEtFFw5CgKvZol0ixNn6IPOyMyPHzyUe7UuyyFUPk5kDR29vjb+hZN1hh354lEOwMOpMFYBVt2Ug66Zs5eATVC5Vv7QdOsyTgOqvINmPUDvIwfTFMiG3t7rWXs7wFJKYLiU764rTGrTjS1yTzFIGpEqkze68b9Ehx6APB0KVeUQM2UB2439VUlcZ2CAwN+qvsycPfBlX1iIN2vjG7ZUWi0SQ9jrOA1xEvgBgqa1EDkkv5j1usEtm3Zu5EvZlsLbMdmai2GWX0p99BFf2WpwqPI4FMflntefZ9RdzPPc4XWp1PCBUfMDMCyeqJEb34aGAtASt+DlKLlXmcYczkQoe5mM="}
 ```
-Following a successful decryption and formatting of the encrypted SoftSIM profile, the CLI tool will excport the profile in the following format. It is this and only this format that is accepted by SoftSIM enabled devices.
+Following a successful decryption and formatting of the encrypted SoftSIM profile, the CLI tool will export the profile in the following format. It is this and only this format that is accepted by SoftSIM enabled devices.
 ```
 01120809101010325406360214980010325476981032140320000000000000000000000000000000000420000102030405060708090A0B0C0D0E0F0520000102030405060708090A0B0C0D0E0F0620000102030405060708090A0B0C0D0E0F
 ```
