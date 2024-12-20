@@ -155,7 +155,6 @@ async fn fetch_profiles(
     profiles_json.push("profiles.json");
     // fail early if file exists
     let mut file = match std::fs::File::options()
-        .append(true)
         .create_new(true)
         .write(true)
         .open(&profiles_json)
