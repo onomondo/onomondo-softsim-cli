@@ -9,7 +9,6 @@ use super::Profile;
 #[derive(Debug)]
 pub struct Key {
     key: rsa::RsaPrivateKey,
-    pub os_path: PathBuf,
 }
 
 impl Key {
@@ -23,9 +22,9 @@ impl Key {
                 e
             )
         })?;
+
         Ok(Key {
             key: private_key,
-            os_path: path.clone(),
         })
     }
 
