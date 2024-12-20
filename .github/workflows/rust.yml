@@ -9,22 +9,22 @@ jobs:
       RUSTC_WRAPPER: sccache
       SCCACHE_CACHE_SIZE: "1G"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           override: true
-      - uses: taiki-e/install-action@cargo-binstall
+      - uses: taiki-e/install-action@cargo-binstall@v2
       - run: cargo binstall --no-confirm --no-symlinks sccache
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
-            ~/.cache/          
+            ~/.cache/
           key: ${{ runner.os }}-sccache-${{ hashFiles('**/Cargo.lock') }}
-      - uses: chetan/git-restore-mtime-action@v1
+      - uses: chetan/git-restore-mtime-action@v2
       - run: cargo test --locked --no-run
       - run: cargo test --locked --no-fail-fast
       - run: cargo clippy --locked --workspace --tests --no-deps -- -D warnings
