@@ -96,7 +96,7 @@ mod tests {
     fn test_all_decrypt_variantions() {
         use rsa::{sha2, Oaep, Pkcs1v15Encrypt};
 
-        let key: &str = r#"-----BEGIN RSA PRIVATE KEY-----
+        let key = r#"-----BEGIN RSA PRIVATE KEY-----
 MIIEogIBAAKCAQEAhbID29kv1/nlIWEftPuTW3FVCSTtKXYH+jfEC1yliBvBdIi9
 8PtKfB7AxejfKNrxXNgHZYoF2U6G1eMiRDo8WUoC6BkljnXyJtARNraDOV2zyGMX
 9wL/S+z/5bKP3HELhG00JIxBLXwtGYlG6byNxt/rGFcN3UHlWAS4F2t45nb0DLER
