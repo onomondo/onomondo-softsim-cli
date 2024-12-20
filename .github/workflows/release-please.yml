@@ -1,13 +1,13 @@
----
+name: Run release-please
+
 on:
-  push:
-    branches: [master]
+  push: 
+    branches: 
+      - master
 
 permissions:
   contents: write
   pull-requests: write
-
-name: Run release-please
 
 jobs:
   release-please:
@@ -16,5 +16,4 @@ jobs:
       - uses: googleapis/release-please-action@v4
         with:
           release-type: rust
-          package-name: ${{ github.event.repository.name }}
           token: ${{ secrets.GH_SS_CLI_AUTH_TOKEN }}
