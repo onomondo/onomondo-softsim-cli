@@ -2,9 +2,6 @@ name: General CI Build & Test Flow
 
 on:
   push: 
-    branches:
-      - master
-  pull_request:
 
 jobs:
   build:
