@@ -13,7 +13,8 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
-      - uses: googleapis/release-please-action@v4
+      - uses: googleapis/release-please-action@v3
         with:
           release-type: rust
+          package-name: ${{ github.event.repository.name }}
           token: ${{ secrets.GH_SS_CLI_AUTH_TOKEN }}
