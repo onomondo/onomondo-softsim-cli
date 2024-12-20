@@ -1,6 +1,6 @@
 name: General CI Build & Test Flow
 
-on: 
+on:
   push: {branches: master}
   pull_request: {branches: master}
 
