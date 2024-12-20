@@ -1,7 +1,6 @@
 name: Lint commit messages
 
-on:
-  pull_request:
+on: pull_request
 
 jobs:
   commitlint:

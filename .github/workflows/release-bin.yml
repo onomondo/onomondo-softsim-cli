@@ -5,7 +5,8 @@ permissions:
 
 on: 
   release:
-    types: [created]
+    types: 
+      - created
 
 jobs:
   upload-assets:
