@@ -19,9 +19,7 @@ async fn main() {
         1 | 2 => LevelFilter::Debug,
         3 => LevelFilter::Trace,
         _ => LevelFilter::Info,
-
     };
-
 
     Builder::new()
         .format(|buf, record| {
@@ -87,7 +85,10 @@ fn get_next(base_path: &PathBuf) -> Result<std::fs::DirEntry, Box<dyn Error>> {
                     .unwrap();
                 if !current_path.starts_with("__")
                     && !current_path.starts_with("profiles")
-                    && path.extension().unwrap_or(std::ffi::OsStr::new("notjson")).eq("json")
+                    && path
+                        .extension()
+                        .unwrap_or(std::ffi::OsStr::new("notjson"))
+                        .eq("json")
                 {
                     return true;
                 }
@@ -222,6 +223,12 @@ fn next(
 
         config::Format::Json => {
             std::io::stdout().write_all(profile.to_json()?.as_bytes())?;
+        }
+
+        config::Format::Raw => {
+            let str_profile = serde_json::to_string(&profile)?;
+
+            std::io::stdout().write_all(str_profile.as_bytes())?;
         }
     }
     Ok(())
