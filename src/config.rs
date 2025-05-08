@@ -47,6 +47,29 @@ pub enum SubCommand {
         )]
         format: Format,
     },
+    Decrypt {
+        /// Path to private key
+        #[arg(short, long)]
+        key: PathBuf,
+
+        #[arg(short, long = "filename")]
+        profile_path: String,
+
+        /// Path to encrypted profiles.
+        #[arg(short = 'i', long = "in", default_value = "./profiles")]
+        set_of_profiles: Option<PathBuf>,
+        /// Output format.
+        #[arg(
+            long,
+            require_equals = true,
+            value_name = "FORMAT",
+            num_args = 0..=1,
+            default_value_t = Format::Hex,
+            default_missing_value = "hex",
+            value_enum
+        )]
+        format: Format,
+    },
 }
 
 #[derive(ValueEnum, Copy, Clone, Debug, PartialEq, Eq)]
