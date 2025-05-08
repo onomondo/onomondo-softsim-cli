@@ -53,6 +53,7 @@ pub enum SubCommand {
 pub enum Format {
     Hex,
     Json,
+    Raw
 }
 
 // /// Set persistent configuration. Export path, api endpoint, api key can be set.

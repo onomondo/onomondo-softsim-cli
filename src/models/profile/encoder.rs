@@ -166,7 +166,7 @@ fn swap_nibbles(s: &str) -> String {
 }
 
 fn half_round_up(n: usize) -> usize {
-    (n + 1) / 2
+    n.div_ceil(2)
 }
 
 fn rpad(s: &str, l: usize, b: Option<u8>) -> String {
