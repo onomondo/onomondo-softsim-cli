@@ -1,4 +1,4 @@
-# SoftSIM CLI
+# Onomondo SoftSIM CLI
 
 A little toolbox to assist with provisioning of your SoftSIM-enabled device.
 
