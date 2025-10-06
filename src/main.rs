@@ -54,7 +54,19 @@ async fn main() {
             key: private_key,
             set_of_profiles: base_path,
             format,
-        } => next(&private_key, &base_path.unwrap(), format),
+        } => next(&private_key, &base_path.unwrap(), format, None),
+
+        config::SubCommand::Decrypt {
+            key: private_key,
+            profile_path,
+            set_of_profiles: base_path,
+            format,
+        } => next(
+            &private_key,
+            &base_path.unwrap(),
+            format,
+            Some(profile_path),
+        ),
     };
 
     if let Err(res) = res {
@@ -105,13 +117,19 @@ fn get_next(base_path: &PathBuf) -> Result<std::fs::DirEntry, Box<dyn Error>> {
     }
 }
 
-fn mark_exported(path: &std::fs::DirEntry) -> Result<(), Box<dyn Error>> {
-    let mut to = path.path();
-    let mut filename = path.file_name().into_string().unwrap();
+fn mark_exported(path: &std::path::PathBuf) -> Result<(), Box<dyn Error>> {
+    let mut to = path.clone();
+    let filename = path
+        .file_name()
+        .ok_or("Couldn't derive filename from path")?
+        .to_str()
+        .ok_or("Couldn't convert filename to string")?;
+
+    let mut filename = String::from(filename);
     filename.insert_str(0, "__");
 
     to.set_file_name(filename);
-    std::fs::rename(path.path(), to)?;
+    std::fs::rename(path, to)?;
 
     Ok(())
 }
@@ -202,6 +220,7 @@ fn next(
     key_path: &PathBuf,
     base_path: &PathBuf,
     format: config::Format,
+    profile_hint: Option<String>,
 ) -> Result<(), Box<dyn Error>> {
     let key = match models::profile::crypto::Key::new(key_path) {
         Ok(k) => k,
@@ -211,9 +230,18 @@ fn next(
         }
     };
 
-    let profile_path = get_next(base_path)?;
-    log::debug!("Next profile: {}", profile_path.path().display());
-    let profile = read_and_decrypt(&profile_path.path(), &key)?;
+    let profile_path = match profile_hint {
+        Some(profile_hint) => {
+            log::debug!("Finding profile with name: {}", profile_hint);
+            let mut path = base_path.clone();
+            path.push(profile_hint.clone());
+            path
+        }
+        None => get_next(base_path)?.path(),
+    };
+
+    log::debug!("Next profile: {}", profile_path.display());
+    let profile = read_and_decrypt(&profile_path, &key)?;
     mark_exported(&profile_path)?;
 
     match format {
