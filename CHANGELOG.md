@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.5.0](https://github.com/onomondo/onomondo-softsim-cli/compare/v0.4.0...v0.5.0) (2025-11-26)
+
+
+### Features
+
+* make smsp tag optional ([#79](https://github.com/onomondo/onomondo-softsim-cli/issues/79)) ([dbb031e](https://github.com/onomondo/onomondo-softsim-cli/commit/dbb031ed2bb35d39b417c531189aabd280888246))
+
+
+### Bug Fixes
+
+* remove unsued DecryptedProfile struct ([#78](https://github.com/onomondo/onomondo-softsim-cli/issues/78)) ([a298a91](https://github.com/onomondo/onomondo-softsim-cli/commit/a298a91b2d576de888283df50dc228468b63e9c4))
+
 ## [0.4.0](https://github.com/onomondo/onomondo-softsim-cli/compare/v0.3.2...v0.4.0) (2025-05-08)
 
 
