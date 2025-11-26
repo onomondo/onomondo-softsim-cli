@@ -46,6 +46,9 @@ pub enum SubCommand {
             value_enum
         )]
         format: Format,
+        /// Include SMSP TLV in output when present in profile
+        #[arg(long = "smsp")]
+        smsp: bool,
     },
 }
 

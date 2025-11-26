@@ -27,15 +27,15 @@ struct ExtendedProfile {
 }
 
 impl Profile {
-    pub fn to_json(&self) -> Result<String, Box<dyn std::error::Error>> {
-        to_json(self)
+    pub fn to_json(&self, include_smsp: bool) -> Result<String, Box<dyn std::error::Error>> {
+        to_json(self, include_smsp)
     }
-    pub fn to_hex(&self) -> String {
-        to_hex(self)
+    pub fn to_hex(&self, include_smsp: bool) -> String {
+        to_hex(self, include_smsp)
     }
 }
 
-fn to_json(p: &Profile) -> Result<String, Box<dyn std::error::Error>> {
+fn to_json(p: &Profile, include_smsp: bool) -> Result<String, Box<dyn std::error::Error>> {
     let mut profile = ExtendedProfile {
         profile: p.clone(),
         additional_fields: Vec::new(),
@@ -84,14 +84,14 @@ fn to_json(p: &Profile) -> Result<String, Box<dyn std::error::Error>> {
     profile.additional_fields.push(AdditionField {
         name: String::from("Hex encoded profile"),
         file: String::from("n/a"),
-        content: to_hex(p),
+        content: to_hex(p, include_smsp),
     });
 
     let t = serde_json::to_string(&profile)?;
     Ok(t)
 }
 
-pub fn to_hex(p: &Profile) -> String {
+pub fn to_hex(p: &Profile, include_smsp: bool) -> String {
     let mut ret = String::new();
 
     if let Some(imsi) = &p.imsi {
@@ -120,8 +120,10 @@ pub fn to_hex(p: &Profile) -> String {
         ret.push_str(&kid.encode_tlv(Tags::Kid));
     }
 
-    if let Some(smsp) = &p.smsp {
-        ret.push_str(&smsp.encode_tlv(Tags::Smsp));
+    if include_smsp {
+        if let Some(smsp) = &p.smsp {
+            ret.push_str(&smsp.encode_tlv(Tags::Smsp));
+        }
     }
 
     if let Some(pin) = &p.pin {
@@ -245,6 +247,30 @@ mod tests {
             "98001032547698103214",
             swap_nibbles(p.iccid.as_deref().unwrap())
         );
-        assert_eq!(p.to_hex(), "01120809101010325406360214980010325476981032140320000000000000000000000000000000000420000102030405060708090A0B0C0D0E0F0520000102030405060708090A0B0C0D0E0F0620000102030405060708090A0B0C0D0E0F")
+    assert_eq!(p.to_hex(true), "01120809101010325406360214980010325476981032140320000000000000000000000000000000000420000102030405060708090A0B0C0D0E0F0520000102030405060708090A0B0C0D0E0F0620000102030405060708090A0B0C0D0E0F")
+    }
+
+    #[test]
+    fn test_smsp_flag() {
+        let p = Profile {
+            iccid: None,
+            imsi: None,
+            opc: None,
+            k: None,
+            kic: None,
+            kid: None,
+            pin: None,
+            puk: None,
+            adm: None,
+            smsp: Some(String::from("abcd")),
+        };
+
+        // when enabled, default tag 7 should be present at start of tlv for smsp: 07 04 abcd
+    let encoded_default = p.to_hex(true);
+        assert!(encoded_default.contains("0704abcd"));
+
+        // when disabled, smsp should not be included
+    let encoded_custom = p.to_hex(false);
+        assert!(!encoded_custom.contains("abcd"));
     }
 }
