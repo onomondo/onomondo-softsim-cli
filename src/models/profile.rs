@@ -30,9 +30,3 @@ impl EncryptedProfile {
         &self.profile
     }
 }
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct DecryptedProfile {
-    iccid: String,
-    profile: Profile,
-}
