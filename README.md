@@ -121,6 +121,8 @@ Options:
           Path to private key
   -i, --in <SET_OF_PROFILES>
           Path to encrypted profiles [default: ./profiles]
+      --smsp
+          Include SMSP TLV in output when present in profile
       --format[=<FORMAT>]
           Output format [default: hex] [possible values: hex, json]
   -h, --help

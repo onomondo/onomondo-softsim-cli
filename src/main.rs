@@ -54,7 +54,8 @@ async fn main() {
             key: private_key,
             set_of_profiles: base_path,
             format,
-        } => next(&private_key, &base_path.unwrap(), format),
+            smsp,
+        } => next(&private_key, &base_path.unwrap(), format, smsp),
     };
 
     if let Err(res) = res {
@@ -202,6 +203,7 @@ fn next(
     key_path: &PathBuf,
     base_path: &PathBuf,
     format: config::Format,
+    smsp: bool,
 ) -> Result<(), Box<dyn Error>> {
     let key = match models::profile::crypto::Key::new(key_path) {
         Ok(k) => k,
@@ -218,11 +220,11 @@ fn next(
 
     match format {
         config::Format::Hex => {
-            std::io::stdout().write_all(profile.to_hex().as_bytes())?;
+            std::io::stdout().write_all(profile.to_hex(smsp).as_bytes())?;
         }
 
         config::Format::Json => {
-            std::io::stdout().write_all(profile.to_json()?.as_bytes())?;
+            std::io::stdout().write_all(profile.to_json(smsp)?.as_bytes())?;
         }
 
         config::Format::Raw => {
