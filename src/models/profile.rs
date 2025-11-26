@@ -14,6 +14,7 @@ pub struct Profile {
     pub puk: Option<String>,
     pub adm: Option<String>,
     pub smsp: Option<String>,
+    pub smsc: Option<String>,
 }
 #[derive(Serialize, Deserialize, Debug)]
 pub struct EncryptedProfile {

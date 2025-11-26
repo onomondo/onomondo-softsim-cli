@@ -123,6 +123,9 @@ Options:
           Path to encrypted profiles [default: ./profiles]
       --smsp
           Include SMSP TLV in output when present in profile
+      --no-smsc
+          Do not include SMSC TLV in output when present in profile. 
+          This can reduce profile size for SoftSIMs that do not support SMS
       --format[=<FORMAT>]
           Output format [default: hex] [possible values: hex, json]
   -h, --help

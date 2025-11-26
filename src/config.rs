@@ -49,6 +49,10 @@ pub enum SubCommand {
         /// Include SMSP TLV in output when present in profile
         #[arg(long = "smsp")]
         smsp: bool,
+        /// Do not include SMSC TLV in output when present in profile.
+        /// This can reduce profile size for SoftSIMs that do not support SMS
+        #[arg(long = "no-smsc")]
+        no_smsc: bool,
     },
 }
 
