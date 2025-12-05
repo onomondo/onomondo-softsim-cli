@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/onomondo/onomondo-softsim-cli/compare/v0.5.0...v0.6.0) (2025-12-05)
+
+
+### Features
+
+* introduce new smsc tag ([#81](https://github.com/onomondo/onomondo-softsim-cli/issues/81)) ([f46f96c](https://github.com/onomondo/onomondo-softsim-cli/commit/f46f96cdb0a571ce379dd9f59c40e8343abf9ab1))
+
 ## [0.5.0](https://github.com/onomondo/onomondo-softsim-cli/compare/v0.4.0...v0.5.0) (2025-11-26)
 
 
