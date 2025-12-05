@@ -12,6 +12,7 @@ enum Tags {
     Pin = 8,
     Adm = 10,
     Puk = 11,
+    Smsc = 12,
     End = 0xff,
 }
 #[derive(Serialize)]
@@ -27,15 +28,15 @@ struct ExtendedProfile {
 }
 
 impl Profile {
-    pub fn to_json(&self, include_smsp: bool) -> Result<String, Box<dyn std::error::Error>> {
-        to_json(self, include_smsp)
+    pub fn to_json(&self, include_smsp: bool, include_smsc: bool) -> Result<String, Box<dyn std::error::Error>> {
+        to_json(self, include_smsp, include_smsc)
     }
-    pub fn to_hex(&self, include_smsp: bool) -> String {
-        to_hex(self, include_smsp)
+    pub fn to_hex(&self, include_smsp: bool, include_smsc: bool) -> String {
+        to_hex(self, include_smsp, include_smsc)
     }
 }
 
-fn to_json(p: &Profile, include_smsp: bool) -> Result<String, Box<dyn std::error::Error>> {
+fn to_json(p: &Profile, include_smsp: bool, include_smsc: bool) -> Result<String, Box<dyn std::error::Error>> {
     let mut profile = ExtendedProfile {
         profile: p.clone(),
         additional_fields: Vec::new(),
@@ -84,14 +85,14 @@ fn to_json(p: &Profile, include_smsp: bool) -> Result<String, Box<dyn std::error
     profile.additional_fields.push(AdditionField {
         name: String::from("Hex encoded profile"),
         file: String::from("n/a"),
-        content: to_hex(p, include_smsp),
+        content: to_hex(p, include_smsp, include_smsc),
     });
 
     let t = serde_json::to_string(&profile)?;
     Ok(t)
 }
 
-pub fn to_hex(p: &Profile, include_smsp: bool) -> String {
+pub fn to_hex(p: &Profile, include_smsp: bool, include_smsc: bool) -> String {
     let mut ret = String::new();
 
     if let Some(imsi) = &p.imsi {
@@ -123,6 +124,12 @@ pub fn to_hex(p: &Profile, include_smsp: bool) -> String {
     if include_smsp {
         if let Some(smsp) = &p.smsp {
             ret.push_str(&smsp.encode_tlv(Tags::Smsp));
+        }
+    }
+    if include_smsc {
+        if let Some(smsc) = &p.smsc {
+            let encoded = encode_smsc(smsc);
+            ret.push_str(&encoded.encode_tlv(Tags::Smsc));
         }
     }
 
@@ -159,6 +166,9 @@ fn encode_imsi(imsi: &str) -> String {
 }
 
 fn swap_nibbles(s: &str) -> String {
+    if s.len() <= 1 {
+        return s.to_string();
+    }
     let mut data: Vec<_> = s.chars().collect();
     for idx in (0..s.len() - 1).step_by(2) {
         data.swap(idx, idx + 1);
@@ -175,6 +185,37 @@ fn rpad(s: &str, l: usize, b: Option<u8>) -> String {
     let padding_len = l - s.len();
     let pad = String::from_utf8(vec![b.unwrap_or(b'f'); padding_len]).unwrap();
     format!("{}{}", s, pad)
+}
+
+fn encode_smsc(smsc: &str) -> String {
+    // strip out non-digits
+    let mut digits: String = smsc.chars().filter(|c| c.is_ascii_digit()).collect();
+
+    // semi-octet length in bytes
+    let digits_octets = half_round_up(digits.len());
+    let length_octet = digits_octets + 1; // +1 for TON
+
+    // pad with 'f' if odd number of digits
+    if digits.len() % 2 == 1 {
+        digits.push('f');
+    }
+
+    // swap nibbles representation
+    let swapped = swap_nibbles(&digits);
+
+    // build content string: length, TON 0x91 (international), swapped digits
+    let mut content = format!("{:02x}91{}", length_octet, swapped);
+
+    // pad to 12 octets (24 hex chars) with 'ff' bytes. Ensures that it match onomondo-uicc expectations
+    const SMSC_CONTENT_BYTES: usize = 12;
+    let current_octets = 1 + 1 + digits_octets; // length_octet included as one octet in the data
+    if current_octets < SMSC_CONTENT_BYTES {
+        let padding_octets = SMSC_CONTENT_BYTES - current_octets;
+        for _ in 0..padding_octets {
+            content.push_str("ff");
+        }
+    }
+    content
 }
 
 trait Tlv {
@@ -237,6 +278,7 @@ mod tests {
             puk: None,
             adm: None,
             smsp: None,
+            smsc: None,
         };
 
         assert_eq!(
@@ -247,12 +289,12 @@ mod tests {
             "98001032547698103214",
             swap_nibbles(p.iccid.as_deref().unwrap())
         );
-    assert_eq!(p.to_hex(true), "01120809101010325406360214980010325476981032140320000000000000000000000000000000000420000102030405060708090A0B0C0D0E0F0520000102030405060708090A0B0C0D0E0F0620000102030405060708090A0B0C0D0E0F")
+    assert_eq!(p.to_hex(true, false), "01120809101010325406360214980010325476981032140320000000000000000000000000000000000420000102030405060708090A0B0C0D0E0F0520000102030405060708090A0B0C0D0E0F0620000102030405060708090A0B0C0D0E0F")
     }
 
     #[test]
     fn test_smsp_flag() {
-        let p = Profile {
+    let p = Profile {
             iccid: None,
             imsi: None,
             opc: None,
@@ -263,14 +305,59 @@ mod tests {
             puk: None,
             adm: None,
             smsp: Some(String::from("abcd")),
+            smsc: None,
         };
 
         // when enabled, default tag 7 should be present at start of tlv for smsp: 07 04 abcd
-    let encoded_default = p.to_hex(true);
+    let encoded_default = p.to_hex(true, false);
         assert!(encoded_default.contains("0704abcd"));
 
         // when disabled, smsp should not be included
-    let encoded_custom = p.to_hex(false);
+    let encoded_custom = p.to_hex(false, false);
         assert!(!encoded_custom.contains("abcd"));
+    }
+
+    #[test]
+    fn test_smsc_flag() {
+        let p = Profile {
+            iccid: None,
+            imsi: None,
+            opc: None,
+            k: None,
+            kic: None,
+            kid: None,
+            pin: None,
+            puk: None,
+            adm: None,
+            smsp: None,
+            smsc: Some(String::from("+447797704848")),
+        };
+
+        // when enabled, expected SMSC TLV: tag 0c length 18 hex (24) then content starting with 07 91 <swapped digits>
+        let encoded_default = p.to_hex(false, true);
+        assert!(encoded_default.contains("0c18"));
+        assert!(encoded_default.contains("0791447779078484ffffffff"));
+    }
+    
+    #[test]
+    fn test_smsc_flag_odd_number() {
+        let p = Profile {
+            iccid: None,
+            imsi: None,
+            opc: None,
+            k: None,
+            kic: None,
+            kid: None,
+            pin: None,
+            puk: None,
+            adm: None,
+            smsp: None,
+            smsc: Some(String::from("+44779770484")),
+        };
+
+        // when enabled, expected SMSC TLV: tag 0c length 18 hex (24) then content starting with 07 91 <swapped digits>
+        let encoded_default = p.to_hex(false, true);
+        assert!(encoded_default.contains("0c18"));
+        assert!(encoded_default.contains("07914477790784f4ffffffff"));
     }
 }
