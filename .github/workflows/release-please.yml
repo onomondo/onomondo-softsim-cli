@@ -18,3 +18,4 @@ jobs:
           release-type: rust
           package-name: ${{ github.event.repository.name }}
           token: ${{ secrets.GITHUB_TOKEN }}
+          manifest-file: .github/.release-please-manifest.json
