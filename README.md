@@ -185,3 +185,13 @@ Install commitlint and set up a commit hook:
 npm install --save-dev @commitlint/{cli,config-conventional}
 npx husky install
 ```
+
+## License
+
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+The Onomondo SoftSIM CLI is provided under:
+
+- SPDX-License-Identifier: Apache-2.0
+
+See [LICENSE](LICENSE) for the full license text and [NOTICE](NOTICE) for attribution.
