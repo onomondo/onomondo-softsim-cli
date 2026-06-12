@@ -12,11 +12,11 @@ jobs:
       RUSTC_WRAPPER: sccache
       SCCACHE_CACHE_SIZE: "1G"
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # v1.94.1
         with:
           toolchain: stable
-      - uses: taiki-e/install-action@f37bbcb2883cc6e475d39f5544f5bfbb58a725e5 # cargo-binstall
+      - uses: taiki-e/install-action@e51d8b05bd75d95ec409fff6f1993c7cc6977d39 # cargo-binstall
       - run: cargo binstall --no-confirm --no-symlinks sccache
       - uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
