@@ -24,7 +24,7 @@ panic = "abort"
 base64 = "0.21.3"
 chrono = "0.4.24"
 clap = { version = "4.2.7", features = ["derive"] }
-env_logger = "0.10.0"
+env_logger = "0.11.0"
 futures = "0.3.28"
 hex = "0.4.3"
 log = "0.4.17"
