@@ -56,7 +56,8 @@ async fn main() {
             format,
             smsp,
             no_smsc,
-        } => next(&private_key, &base_path.unwrap(), format, smsp, !no_smsc),
+            no_crc,
+        } => next(&private_key, &base_path.unwrap(), format, smsp, !no_smsc, !no_crc),
     };
 
     if let Err(res) = res {
@@ -206,6 +207,7 @@ fn next(
     format: config::Format,
     smsp: bool,
     smsc: bool,
+    crc: bool,
 ) -> Result<(), Box<dyn Error>> {
     let key = match models::profile::crypto::Key::new(key_path) {
         Ok(k) => k,
@@ -222,11 +224,11 @@ fn next(
 
     match format {
         config::Format::Hex => {
-            std::io::stdout().write_all(profile.to_hex(smsp, smsc).as_bytes())?;
+            std::io::stdout().write_all(profile.to_hex(smsp, smsc, crc).as_bytes())?;
         }
 
         config::Format::Json => {
-            std::io::stdout().write_all(profile.to_json(smsp, smsc)?.as_bytes())?;
+            std::io::stdout().write_all(profile.to_json(smsp, smsc, crc)?.as_bytes())?;
         }
 
         config::Format::Raw => {
