@@ -16,7 +16,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # v1.94.1
         with:
           toolchain: stable
-      - uses: taiki-e/install-action@30f9154d2798216c28c98029229410471c046496 # cargo-binstall
+      - uses: taiki-e/install-action@c346d96a5973faebedbc59340ed527eab3062e83 # cargo-binstall
       - run: cargo binstall --no-confirm --no-symlinks sccache
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
