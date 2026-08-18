@@ -168,8 +168,10 @@ pub fn to_hex(p: &Profile, include_smsp: bool, include_smsc: bool, include_crc: 
 
     // Must stay last: it covers every character in front of it, and that is also
     // the only position an older decoder skips an unknown record safely in.
+    // Folded to lowercase first: a transport that re-cases the hex must not
+    // invalidate the profile, so case never enters the CRC.
     if include_crc {
-        let crc = format!("{:08x}", crc32(ret.as_bytes()));
+        let crc = format!("{:08x}", crc32(ret.to_ascii_lowercase().as_bytes()));
         ret.push_str(&crc.encode_tlv(Tags::Crc32));
     }
     ret
@@ -317,7 +319,7 @@ mod tests {
         );
     assert_eq!(p.to_hex(true, false, false), "01120809101010325406360214980010325476981032140320000000000000000000000000000000000420000102030405060708090A0B0C0D0E0F0520000102030405060708090A0B0C0D0E0F0620000102030405060708090A0B0C0D0E0F");
         // The decoder is pinned to this exact pair, see profile_decode_test.c.
-        assert_eq!(p.to_hex(true, false, true), "01120809101010325406360214980010325476981032140320000000000000000000000000000000000420000102030405060708090A0B0C0D0E0F0520000102030405060708090A0B0C0D0E0F0620000102030405060708090A0B0C0D0E0Ffe083016ba59")
+        assert_eq!(p.to_hex(true, false, true), "01120809101010325406360214980010325476981032140320000000000000000000000000000000000420000102030405060708090A0B0C0D0E0F0520000102030405060708090A0B0C0D0E0F0620000102030405060708090A0B0C0D0E0Ffe08610658d0")
     }
 
     #[test]
@@ -395,6 +397,11 @@ mod tests {
         // decoder pins the same one, so the two cannot drift apart unnoticed.
         assert_eq!(crc32(b"123456789"), 0xcbf4_3926);
         assert_eq!(crc32(b""), 0);
+        // The record's CRC is computed over the lowercased characters.
+        assert_eq!(
+            crc32("0A0B0C0D".to_ascii_lowercase().as_bytes()),
+            crc32(b"0a0b0c0d")
+        );
     }
 
     #[test]
@@ -416,9 +423,12 @@ mod tests {
         // The record has to be last, and it covers exactly what precedes it.
         let with_crc = p.to_hex(true, false, true);
         let without_crc = p.to_hex(true, false, false);
-        assert!(with_crc.ends_with("fe083016ba59"));
+        assert!(with_crc.ends_with("fe08610658d0"));
         // Length, not a substring search: "fe08" can occur by chance inside key material.
         assert_eq!(with_crc.len(), without_crc.len() + 12);
-        assert_eq!(with_crc, format!("{}fe08{:08x}", without_crc, crc32(without_crc.as_bytes())));
+        assert_eq!(
+            with_crc,
+            format!("{}fe08{:08x}", without_crc, crc32(without_crc.to_ascii_lowercase().as_bytes()))
+        );
     }
 }
