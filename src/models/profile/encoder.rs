@@ -85,7 +85,7 @@ fn to_json(p: &Profile, include_smsp: bool, include_smsc: bool, include_crc: boo
         let a001 = AdditionField {
             name: String::from("Key material for attaching to network"),
             file: String::from("/3f00/a001"),
-            content: format!("{}{}00", k, o),
+            content: format!("{}{}00", k, o).to_ascii_lowercase(),
         };
 
         profile.additional_fields.push(a001);
@@ -95,7 +95,8 @@ fn to_json(p: &Profile, include_smsp: bool, include_smsc: bool, include_crc: boo
         let a004 = AdditionField {
             name: String::from("Key material for OTA related functions"),
             file: String::from("/3f00/a004"),
-            content: format!("b00011060101{}{}{}", kic, kid, rpad("", 2 * 76, None)),
+            content: format!("b00011060101{}{}{}", kic, kid, rpad("", 2 * 76, None))
+                .to_ascii_lowercase(),
         };
 
         profile.additional_fields.push(a004);
@@ -166,12 +167,15 @@ pub fn to_hex(p: &Profile, include_smsp: bool, include_smsc: bool, include_crc: 
         ret.push_str(&encoded_adm.encode_tlv(Tags::Adm));
     }
 
+    // Emit lowercase throughout: case carries no meaning to any decoder, and the
+    // CRC below then covers the string verbatim. A transport that re-cases the
+    // hex is still safe because the decoder folds again before verifying.
+    let mut ret = ret.to_ascii_lowercase();
+
     // Must stay last: it covers every character in front of it, and that is also
     // the only position an older decoder skips an unknown record safely in.
-    // Folded to lowercase first: a transport that re-cases the hex must not
-    // invalidate the profile, so case never enters the CRC.
     if include_crc {
-        let crc = format!("{:08x}", crc32(ret.to_ascii_lowercase().as_bytes()));
+        let crc = format!("{:08x}", crc32(ret.as_bytes()));
         ret.push_str(&crc.encode_tlv(Tags::Crc32));
     }
     ret
@@ -317,9 +321,12 @@ mod tests {
             "98001032547698103214",
             swap_nibbles(p.iccid.as_deref().unwrap())
         );
-    assert_eq!(p.to_hex(true, false, false), "01120809101010325406360214980010325476981032140320000000000000000000000000000000000420000102030405060708090A0B0C0D0E0F0520000102030405060708090A0B0C0D0E0F0620000102030405060708090A0B0C0D0E0F");
+    assert_eq!(p.to_hex(true, false, false), "01120809101010325406360214980010325476981032140320000000000000000000000000000000000420000102030405060708090a0b0c0d0e0f0520000102030405060708090a0b0c0d0e0f0620000102030405060708090a0b0c0d0e0f");
         // The decoder is pinned to this exact pair, see profile_decode_test.c.
-        assert_eq!(p.to_hex(true, false, true), "01120809101010325406360214980010325476981032140320000000000000000000000000000000000420000102030405060708090A0B0C0D0E0F0520000102030405060708090A0B0C0D0E0F0620000102030405060708090A0B0C0D0E0Ffe08610658d0")
+        let hex = p.to_hex(true, false, true);
+        assert_eq!(hex, "01120809101010325406360214980010325476981032140320000000000000000000000000000000000420000102030405060708090a0b0c0d0e0f0520000102030405060708090a0b0c0d0e0f0620000102030405060708090a0b0c0d0e0ffe08610658d0");
+        // The whole export is lowercase, including pass-through key material.
+        assert!(!hex.bytes().any(|b| b.is_ascii_uppercase()));
     }
 
     #[test]
@@ -428,7 +435,7 @@ mod tests {
         assert_eq!(with_crc.len(), without_crc.len() + 12);
         assert_eq!(
             with_crc,
-            format!("{}fe08{:08x}", without_crc, crc32(without_crc.to_ascii_lowercase().as_bytes()))
+            format!("{}fe08{:08x}", without_crc, crc32(without_crc.as_bytes()))
         );
     }
 }
