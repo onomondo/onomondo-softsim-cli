@@ -53,6 +53,10 @@ pub enum SubCommand {
         /// This can reduce profile size for SoftSIMs that do not support SMS
         #[arg(long = "no-smsc")]
         no_smsc: bool,
+        /// Do not append the CRC32 TLV that lets a SoftSIM detect a profile
+        /// corrupted in transit. Older SoftSIMs ignore the record
+        #[arg(long = "no-crc")]
+        no_crc: bool,
     },
 }
 

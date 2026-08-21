@@ -122,8 +122,11 @@ Options:
       --no-smsc
           Do not include SMSC TLV in output when present in profile. 
           This can reduce profile size for SoftSIMs that do not support SMS
+      --no-crc
+          Do not append the CRC32 TLV that lets a SoftSIM detect a profile
+          corrupted in transit. Older SoftSIMs ignore the record
       --format[=<FORMAT>]
-          Output format [default: hex] [possible values: hex, json]
+          Output format [default: hex] [possible values: hex, json, raw]
   -h, --help
           Print help
 ```
@@ -135,8 +138,12 @@ The SoftSIM profile is represented in the following format when fetched from Ono
 ```
 Following a successful decryption and formatting of the encrypted SoftSIM profile, the CLI tool exports the profile in the following format. It is this and only this format that is accepted by SoftSIM-enabled devices by Onomondo:
 ```
-01120809101010325406360214980010325476981032140320000000000000000000000000000000000420000102030405060708090A0B0C0D0E0F0520000102030405060708090A0B0C0D0E0F0620000102030405060708090A0B0C0D0E0F
+01120809101010325406360214980010325476981032140320000000000000000000000000000000000420000102030405060708090a0b0c0d0e0f0520000102030405060708090a0b0c0d0e0f0620000102030405060708090a0b0c0d0e0ffe08610658d0
 ```
+The trailing `fe08` record is a CRC32 of everything before it, so a SoftSIM can tell that the profile
+reached it intact. It is always the last record, and it is computed over the lowercased characters, so
+a transport that re-cases the hex does not invalidate it. A SoftSIM that predates the record ignores
+it, and `--no-crc` leaves it out entirely.
 
 ### Example
 Write hex encoded profiles to stdout. Optionally, this can be piped directly to a device if the device is ready to receive a profile in this specific format.

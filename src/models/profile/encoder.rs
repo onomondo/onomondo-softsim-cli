@@ -13,7 +13,26 @@ enum Tags {
     Adm = 10,
     Puk = 11,
     Smsc = 12,
+    // Records that describe the profile rather than carry a field live at the
+    // top of the range: 0x01..=0xef is profile data, 0xf0..=0xff is structural.
+    Crc32 = 0xfe,
     End = 0xff,
+}
+
+/// CRC-32/ISO-HDLC, as used by zlib: reflected polynomial 0xedb88320, initial
+/// and final inversion. Hand-rolled so the same handful of lines can sit in the
+/// decoder as well and the two cannot drift apart.
+fn crc32(data: &[u8]) -> u32 {
+    let mut crc = u32::MAX;
+
+    for byte in data {
+        crc ^= *byte as u32;
+        for _ in 0..8 {
+            crc = (crc >> 1) ^ if crc & 1 != 0 { 0xedb8_8320 } else { 0 };
+        }
+    }
+
+    !crc
 }
 #[derive(Serialize)]
 struct AdditionField {
@@ -28,15 +47,15 @@ struct ExtendedProfile {
 }
 
 impl Profile {
-    pub fn to_json(&self, include_smsp: bool, include_smsc: bool) -> Result<String, Box<dyn std::error::Error>> {
-        to_json(self, include_smsp, include_smsc)
+    pub fn to_json(&self, include_smsp: bool, include_smsc: bool, include_crc: bool) -> Result<String, Box<dyn std::error::Error>> {
+        to_json(self, include_smsp, include_smsc, include_crc)
     }
-    pub fn to_hex(&self, include_smsp: bool, include_smsc: bool) -> String {
-        to_hex(self, include_smsp, include_smsc)
+    pub fn to_hex(&self, include_smsp: bool, include_smsc: bool, include_crc: bool) -> String {
+        to_hex(self, include_smsp, include_smsc, include_crc)
     }
 }
 
-fn to_json(p: &Profile, include_smsp: bool, include_smsc: bool) -> Result<String, Box<dyn std::error::Error>> {
+fn to_json(p: &Profile, include_smsp: bool, include_smsc: bool, include_crc: bool) -> Result<String, Box<dyn std::error::Error>> {
     let mut profile = ExtendedProfile {
         profile: p.clone(),
         additional_fields: Vec::new(),
@@ -66,7 +85,7 @@ fn to_json(p: &Profile, include_smsp: bool, include_smsc: bool) -> Result<String
         let a001 = AdditionField {
             name: String::from("Key material for attaching to network"),
             file: String::from("/3f00/a001"),
-            content: format!("{}{}00", k, o),
+            content: format!("{}{}00", k, o).to_ascii_lowercase(),
         };
 
         profile.additional_fields.push(a001);
@@ -76,7 +95,8 @@ fn to_json(p: &Profile, include_smsp: bool, include_smsc: bool) -> Result<String
         let a004 = AdditionField {
             name: String::from("Key material for OTA related functions"),
             file: String::from("/3f00/a004"),
-            content: format!("b00011060101{}{}{}", kic, kid, rpad("", 2 * 76, None)),
+            content: format!("b00011060101{}{}{}", kic, kid, rpad("", 2 * 76, None))
+                .to_ascii_lowercase(),
         };
 
         profile.additional_fields.push(a004);
@@ -85,14 +105,14 @@ fn to_json(p: &Profile, include_smsp: bool, include_smsc: bool) -> Result<String
     profile.additional_fields.push(AdditionField {
         name: String::from("Hex encoded profile"),
         file: String::from("n/a"),
-        content: to_hex(p, include_smsp, include_smsc),
+        content: to_hex(p, include_smsp, include_smsc, include_crc),
     });
 
     let t = serde_json::to_string(&profile)?;
     Ok(t)
 }
 
-pub fn to_hex(p: &Profile, include_smsp: bool, include_smsc: bool) -> String {
+pub fn to_hex(p: &Profile, include_smsp: bool, include_smsc: bool, include_crc: bool) -> String {
     let mut ret = String::new();
 
     if let Some(imsi) = &p.imsi {
@@ -145,6 +165,18 @@ pub fn to_hex(p: &Profile, include_smsp: bool, include_smsc: bool) -> String {
     if let Some(adm) = &p.adm {
         let encoded_adm = hex::encode(adm.as_bytes());
         ret.push_str(&encoded_adm.encode_tlv(Tags::Adm));
+    }
+
+    // Emit lowercase throughout: case carries no meaning to any decoder, and the
+    // CRC below then covers the string verbatim. A transport that re-cases the
+    // hex is still safe because the decoder folds again before verifying.
+    let mut ret = ret.to_ascii_lowercase();
+
+    // Must stay last: it covers every character in front of it, and that is also
+    // the only position an older decoder skips an unknown record safely in.
+    if include_crc {
+        let crc = format!("{:08x}", crc32(ret.as_bytes()));
+        ret.push_str(&crc.encode_tlv(Tags::Crc32));
     }
     ret
 }
@@ -289,7 +321,12 @@ mod tests {
             "98001032547698103214",
             swap_nibbles(p.iccid.as_deref().unwrap())
         );
-    assert_eq!(p.to_hex(true, false), "01120809101010325406360214980010325476981032140320000000000000000000000000000000000420000102030405060708090A0B0C0D0E0F0520000102030405060708090A0B0C0D0E0F0620000102030405060708090A0B0C0D0E0F")
+    assert_eq!(p.to_hex(true, false, false), "01120809101010325406360214980010325476981032140320000000000000000000000000000000000420000102030405060708090a0b0c0d0e0f0520000102030405060708090a0b0c0d0e0f0620000102030405060708090a0b0c0d0e0f");
+        // The decoder is pinned to this exact pair, see profile_decode_test.c.
+        let hex = p.to_hex(true, false, true);
+        assert_eq!(hex, "01120809101010325406360214980010325476981032140320000000000000000000000000000000000420000102030405060708090a0b0c0d0e0f0520000102030405060708090a0b0c0d0e0f0620000102030405060708090a0b0c0d0e0ffe08610658d0");
+        // The whole export is lowercase, including pass-through key material.
+        assert!(!hex.bytes().any(|b| b.is_ascii_uppercase()));
     }
 
     #[test]
@@ -309,11 +346,11 @@ mod tests {
         };
 
         // when enabled, default tag 7 should be present at start of tlv for smsp: 07 04 abcd
-    let encoded_default = p.to_hex(true, false);
+    let encoded_default = p.to_hex(true, false, false);
         assert!(encoded_default.contains("0704abcd"));
 
         // when disabled, smsp should not be included
-    let encoded_custom = p.to_hex(false, false);
+    let encoded_custom = p.to_hex(false, false, false);
         assert!(!encoded_custom.contains("abcd"));
     }
 
@@ -334,7 +371,7 @@ mod tests {
         };
 
         // when enabled, expected SMSC TLV: tag 0c length 18 hex (24) then content starting with 07 91 <swapped digits>
-        let encoded_default = p.to_hex(false, true);
+        let encoded_default = p.to_hex(false, true, false);
         assert!(encoded_default.contains("0c18"));
         assert!(encoded_default.contains("0791447779078484ffffffff"));
     }
@@ -356,8 +393,49 @@ mod tests {
         };
 
         // when enabled, expected SMSC TLV: tag 0c length 18 hex (24) then content starting with 07 91 <swapped digits>
-        let encoded_default = p.to_hex(false, true);
+        let encoded_default = p.to_hex(false, true, false);
         assert!(encoded_default.contains("0c18"));
         assert!(encoded_default.contains("07914477790784f4ffffffff"));
+    }
+
+    #[test]
+    fn test_crc32_check_value() {
+        // The check value every CRC-32/ISO-HDLC implementation agrees on. The
+        // decoder pins the same one, so the two cannot drift apart unnoticed.
+        assert_eq!(crc32(b"123456789"), 0xcbf4_3926);
+        assert_eq!(crc32(b""), 0);
+        // The record's CRC is computed over the lowercased characters.
+        assert_eq!(
+            crc32("0A0B0C0D".to_ascii_lowercase().as_bytes()),
+            crc32(b"0a0b0c0d")
+        );
+    }
+
+    #[test]
+    fn test_crc_flag() {
+        let p = Profile {
+            iccid: Some(String::from("89000123456789012341")),
+            imsi: Some(String::from("001010123456063")),
+            opc: Some(String::from("00000000000000000000000000000000")),
+            k: Some(String::from("000102030405060708090A0B0C0D0E0F")),
+            kic: Some(String::from("000102030405060708090A0B0C0D0E0F")),
+            kid: Some(String::from("000102030405060708090A0B0C0D0E0F")),
+            pin: None,
+            puk: None,
+            adm: None,
+            smsp: None,
+            smsc: None,
+        };
+
+        // The record has to be last, and it covers exactly what precedes it.
+        let with_crc = p.to_hex(true, false, true);
+        let without_crc = p.to_hex(true, false, false);
+        assert!(with_crc.ends_with("fe08610658d0"));
+        // Length, not a substring search: "fe08" can occur by chance inside key material.
+        assert_eq!(with_crc.len(), without_crc.len() + 12);
+        assert_eq!(
+            with_crc,
+            format!("{}fe08{:08x}", without_crc, crc32(without_crc.as_bytes()))
+        );
     }
 }
