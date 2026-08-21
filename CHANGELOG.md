@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/onomondo/onomondo-softsim-cli/compare/v0.6.0...v0.7.0) (2026-08-21)
+
+
+### Features
+
+* append a profile CRC32 record ([#114](https://github.com/onomondo/onomondo-softsim-cli/issues/114)) ([9d582aa](https://github.com/onomondo/onomondo-softsim-cli/commit/9d582aac3e115e24ddee62b07783f17029c85698))
+
 ## [0.6.0](https://github.com/onomondo/onomondo-softsim-cli/compare/v0.5.0...v0.6.0) (2025-12-05)
 
 
